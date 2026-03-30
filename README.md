@@ -2,7 +2,7 @@
 
 Une collectivité gère un parc de points d'apport volontaire (PAV) répartis en ville. Construis une application qui permet aux agents de la collectivité de suivre l'état du parc et d'exploiter les données remontées par les équipements.
 
-![publidata-test-technique-illustration](https://github.com/user-attachments/assets/b1a6499b-7c48-463e-8f50-757f65e74d24)
+![publidata-test-technique-illustration](https://medias.publidata.io/production/images/images/000/112/396/original/568639236-b1a6499b-7c48-463e-8f50-757f65e74d24.jpg?1774858975)
 
 ## 🎯 Objectif
 
