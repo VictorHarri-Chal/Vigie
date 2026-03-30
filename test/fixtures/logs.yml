@@ -1,0 +1,17 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  log_id: MyString
+  event_type: MyString
+  occurred_at: 2026-03-30 23:03:52
+  payload: 
+  imported_at: 2026-03-30 23:03:52
+  pav: one
+
+two:
+  log_id: MyString
+  event_type: MyString
+  occurred_at: 2026-03-30 23:03:52
+  payload: 
+  imported_at: 2026-03-30 23:03:52
+  pav: two
