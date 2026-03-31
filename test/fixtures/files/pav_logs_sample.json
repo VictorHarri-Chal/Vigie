@@ -1,0 +1,70 @@
+[
+  {
+    "id": "log-001",
+    "event_type": "sensor_reading",
+    "occurred_at": "2024-01-15T10:30:00Z",
+    "payload": { "fill_percent": 45, "anomaly_flags": [] },
+    "pav": {
+      "id": "pav-01",
+      "name": "PAV Verre République",
+      "address": "1 Place de la République",
+      "city": "Paris",
+      "zip": "75011",
+      "lat": 48.8635,
+      "lng": 2.3634,
+      "waste_type": "verre",
+      "capacity_liters": 3000
+    }
+  },
+  {
+    "id": "log-002",
+    "event_type": "badge_deposit",
+    "occurred_at": "2024-01-15T11:00:00Z",
+    "payload": { "provider": "badge-corp", "access_granted": true, "badge_revoked": false },
+    "pav": {
+      "id": "pav-01",
+      "name": "PAV Verre République",
+      "address": "1 Place de la République",
+      "city": "Paris",
+      "zip": "75011",
+      "lat": 48.8635,
+      "lng": 2.3634,
+      "waste_type": "verre",
+      "capacity_liters": 3000
+    }
+  },
+  {
+    "id": "log-003",
+    "event_type": "incident",
+    "occurred_at": "2024-01-16",
+    "payload": { "type": "overflow", "note": "Débordement signalé", "resolved": false },
+    "pav": {
+      "id": "pav-01",
+      "name": "PAV Verre République",
+      "address": "1 Place de la République",
+      "city": "Paris",
+      "zip": "75011",
+      "lat": 48.8635,
+      "lng": 2.3634,
+      "waste_type": "verre",
+      "capacity_liters": 3000
+    }
+  },
+  {
+    "id": "log-001",
+    "event_type": "sensor_reading",
+    "occurred_at": "2024-01-15T10:30:00Z",
+    "payload": { "fill_percent": 45, "anomaly_flags": [] },
+    "pav": {
+      "id": "pav-01",
+      "name": "PAV Verre République",
+      "address": "1 Place de la République",
+      "city": "Paris",
+      "zip": "75011",
+      "lat": 48.8635,
+      "lng": 2.3634,
+      "waste_type": "verre",
+      "capacity_liters": 3000
+    }
+  }
+]

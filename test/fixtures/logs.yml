@@ -1,17 +1,17 @@
 # Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
 one:
-  log_id: MyString
-  event_type: MyString
-  occurred_at: 2026-03-30 23:03:52
-  payload: 
-  imported_at: 2026-03-30 23:03:52
+  log_id: log-fixture-001
+  event_type: sensor_reading
+  occurred_at: 2024-01-15 10:30:00
+  payload: '{"fill_percent": 42}'
+  imported_at: 2024-01-15 10:30:00
   pav: one
 
 two:
-  log_id: MyString
-  event_type: MyString
-  occurred_at: 2026-03-30 23:03:52
-  payload: 
-  imported_at: 2026-03-30 23:03:52
+  log_id: log-fixture-002
+  event_type: incident
+  occurred_at: 2024-01-16 00:00:00
+  payload: '{"type": "overflow", "resolved": false}'
+  imported_at: 2024-01-16 00:00:00
   pav: two

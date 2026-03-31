@@ -1,23 +1,23 @@
 # Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
 one:
-  pav_id: MyString
-  name: MyString
-  address: MyString
-  city: MyString
-  zip: MyString
-  lat: 1.5
-  lng: 1.5
-  waste_type: MyString
-  capacity_liters: 1
+  pav_id: pav-fixture-01
+  name: PAV Fixture Verre
+  address: 1 Rue de la Paix
+  city: Paris
+  zip: "75001"
+  lat: 48.8698
+  lng: 2.3309
+  waste_type: verre
+  capacity_liters: 3000
 
 two:
-  pav_id: MyString
-  name: MyString
-  address: MyString
-  city: MyString
-  zip: MyString
-  lat: 1.5
-  lng: 1.5
-  waste_type: MyString
-  capacity_liters: 1
+  pav_id: pav-fixture-02
+  name: PAV Fixture Papier
+  address: 2 Rue de Rivoli
+  city: Paris
+  zip: "75004"
+  lat: 48.8566
+  lng: 2.3522
+  waste_type: papier
+  capacity_liters: 2000
