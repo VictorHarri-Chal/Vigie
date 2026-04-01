@@ -4,7 +4,8 @@ one:
   log_id: log-fixture-001
   event_type: sensor_reading
   occurred_at: 2024-01-15 10:30:00
-  payload: '{"fill_percent": 42}'
+  payload:
+    fill_percent: 42
   imported_at: 2024-01-15 10:30:00
   pav: one
 
@@ -12,6 +13,18 @@ two:
   log_id: log-fixture-002
   event_type: incident
   occurred_at: 2024-01-16 00:00:00
-  payload: '{"type": "overflow", "resolved": false}'
+  payload:
+    type: overflow
+    resolved: false
   imported_at: 2024-01-16 00:00:00
   pav: two
+
+three:
+  log_id: log-fixture-003
+  event_type: incident
+  occurred_at: 2024-01-17 00:00:00
+  payload:
+    note: "Déversement détecté"
+    resolved: true
+  imported_at: 2024-01-17 00:00:00
+  pav: one
