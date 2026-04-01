@@ -5,6 +5,15 @@
   <div class="flex items-center justify-between mb-6">
     <h1 class="text-xl font-semibold text-white">Incidents</h1>
 
+    <div class="flex items-center gap-3">
+    <%= link_to incidents_path(status: params[:status], format: :csv),
+        title: "Exporter en CSV",
+        class: "flex items-center justify-center w-9 h-9 rounded-xl bg-gray-900 border border-gray-800 text-gray-400 hover:text-yellow-400 hover:border-yellow-400/50 transition-colors" do %>
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+      </svg>
+    <% end %>
+
     <div class="flex bg-gray-900 border border-gray-800 rounded-xl p-1 gap-1 text-sm">
       <%= link_to "Tous",
           incidents_path,
@@ -15,6 +24,7 @@
       <%= link_to "Résolus",
           incidents_path(status: "resolved"),
           class: "px-4 py-1.5 rounded-lg transition-colors #{params[:status] == "resolved" ? "bg-yellow-400 text-gray-900 font-semibold" : "text-gray-400 hover:text-white"}" %>
+    </div>
     </div>
   </div>
 

@@ -1,6 +1,7 @@
 source "https://rubygems.org"
 
 gem "rails", "~> 8.0.2", ">= 8.0.2.1"
+gem "csv"
 gem "propshaft"
 gem "pg", "~> 1.1"
 gem "puma", ">= 5.0"
