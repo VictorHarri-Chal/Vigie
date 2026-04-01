@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title><%= content_for(:title) || "PAV Dashboard" %></title>
+    <title><%= content_for(:title) || "Vigie" %></title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
@@ -18,8 +18,8 @@
     <% if user_signed_in? %>
       <nav class="bg-gray-900 border-b border-gray-800 px-6 h-14 flex items-center justify-between">
         <%= link_to root_path, class: "flex items-center gap-2.5" do %>
-          <%= image_tag "logo.png", class: "h-9 w-auto", alt: "PAV Dashboard" %>
-          <span class="font-semibold text-white tracking-tight">PAV Dashboard</span>
+          <%= image_tag "logo.png", class: "h-9 w-auto", alt: "Vigie" %>
+          <span class="font-semibold text-white tracking-tight">Vigie</span>
         <% end %>
         <div class="flex gap-1">
           <% if current_page?(root_path) %>
