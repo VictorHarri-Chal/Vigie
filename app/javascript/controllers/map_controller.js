@@ -20,6 +20,7 @@ export default class extends Controller {
     if (this.markers.length > 0) {
       const group = L.featureGroup(this.markers)
       this.map.fitBounds(group.getBounds(), { padding: [60, 60] })
+      this.defaultBounds = group.getBounds()
     }
   }
 
@@ -95,6 +96,8 @@ export default class extends Controller {
     marker.setIcon(this.makeIcon(marker.color, true))
     this.activeMarker = marker
 
+    this.map.flyTo([marker.pav.lat, marker.pav.lng], 15, { animate: true, duration: 0.4 })
+
     const frame = document.querySelector("turbo-frame#pav-panel")
     frame.src = `/pavs/${pavId}`
     this.panelTarget.classList.remove("translate-x-full")
@@ -109,6 +112,8 @@ export default class extends Controller {
     this.panelTarget.classList.add("translate-x-full")
     const frame = document.querySelector("turbo-frame#pav-panel")
     if (frame) frame.src = ""
+
+    this.map.zoomOut(1, { animate: true })
   }
 
   fillColor(percent) {
