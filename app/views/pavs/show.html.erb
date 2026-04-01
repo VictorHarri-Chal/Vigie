@@ -1,0 +1,292 @@
+<% content_for :title, @pav.name %>
+
+<turbo-frame id="pav-panel">
+  <div class="flex flex-col h-full bg-gray-900 text-gray-100 min-h-[calc(100vh-3.5rem)] <%= @from_incidents ? "rounded-xl border border-gray-800" : "" %>">
+
+    <%# Header %>
+    <div class="flex items-center justify-between px-5 pt-5 pb-4 border-b border-gray-800 flex-shrink-0">
+      <div class="flex-1 min-w-0 mr-3">
+        <h2 class="font-semibold text-white text-lg truncate"><%= @pav.name %></h2>
+        <p class="text-xs text-gray-500 mt-0.5"><%= @pav.pav_id %></p>
+      </div>
+      <% if @from_incidents %>
+        <%= link_to incidents_path, data: { turbo_frame: "_top" }, class: "flex-shrink-0 flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-gray-400 hover:text-white hover:bg-gray-800 transition-colors" do %>
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+          </svg>
+          <span class="text-xs">Incidents</span>
+        <% end %>
+      <% else %>
+        <button
+          class="flex-shrink-0 p-1.5 rounded-lg text-gray-400 hover:text-white hover:bg-gray-800 transition-colors"
+          data-action="click->map#closePanel"
+          aria-label="Fermer"
+        >
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </button>
+      <% end %>
+    </div>
+
+    <%# Onglets %>
+    <div
+      data-controller="tabs"
+      data-tabs-active-tab-value="<%= @active_tab %>"
+      class="flex flex-col flex-1 min-h-0"
+    >
+
+      <div class="flex border-b border-gray-800 px-5 flex-shrink-0">
+        <button class="py-3 pr-4 text-sm border-b-2 transition-colors whitespace-nowrap hover:text-white cursor-pointer" data-tabs-target="tab" data-action="click->tabs#switch">
+          Informations
+        </button>
+        <button class="py-3 px-4 text-sm border-b-2 transition-colors whitespace-nowrap hover:text-white cursor-pointer" data-tabs-target="tab" data-action="click->tabs#switch">
+          Relevés <span class="text-xs opacity-50">(<%= @pagy_readings.count %>)</span>
+        </button>
+        <button class="py-3 px-4 text-sm border-b-2 transition-colors whitespace-nowrap hover:text-white cursor-pointer" data-tabs-target="tab" data-action="click->tabs#switch">
+          Dépôts <span class="text-xs opacity-50">(<%= @pagy_deposits.count %>)</span>
+        </button>
+        <button class="py-3 pl-4 text-sm border-b-2 transition-colors whitespace-nowrap hover:text-white cursor-pointer" data-tabs-target="tab" data-action="click->tabs#switch">
+          Incidents <span class="text-xs opacity-50">(<%= @pagy_incidents.count %>)</span>
+        </button>
+      </div>
+
+      <%# Onglet 1 : Informations %>
+      <div data-tabs-target="panel" class="flex-1 overflow-y-auto px-5 py-5">
+
+        <%# Taux de remplissage en évidence %>
+        <% fill = @pav.current_fill_percent %>
+        <% if fill %>
+          <% fill_f = fill.to_f %>
+          <div class="mb-5 bg-gray-800 rounded-xl p-4 border border-gray-700">
+            <div class="text-xs text-gray-500 mb-2">Taux de remplissage actuel</div>
+            <div class="flex items-end gap-3 mb-3">
+              <span class="text-4xl font-bold <%= fill_f > 80 ? "text-red-400" : fill_f > 50 ? "text-yellow-400" : "text-green-400" %>">
+                <%= fill_f.round %> %
+              </span>
+            </div>
+            <div class="w-full bg-gray-700 rounded-full h-2">
+              <div class="h-2 rounded-full <%= fill_f > 80 ? "bg-red-400" : fill_f > 50 ? "bg-yellow-400" : "bg-green-400" %>" style="width: <%= fill_f.round %>%"></div>
+            </div>
+          </div>
+        <% end %>
+
+        <%# Infos génériques %>
+        <dl class="grid grid-cols-2 gap-3 mb-5">
+          <div class="bg-gray-800 rounded-xl p-4 border border-gray-700">
+            <dt class="text-xs text-gray-500 mb-1">Type de déchet</dt>
+            <dd class="text-white font-semibold"><%= @pav.waste_type&.humanize || "—" %></dd>
+          </div>
+          <div class="bg-gray-800 rounded-xl p-4 border border-gray-700">
+            <dt class="text-xs text-gray-500 mb-1">Contenance</dt>
+            <dd class="text-white font-semibold"><%= @pav.capacity_liters ? "#{@pav.capacity_liters} L" : "—" %></dd>
+          </div>
+          <div class="bg-gray-800 rounded-xl p-4 border border-gray-700 col-span-2">
+            <dt class="text-xs text-gray-500 mb-1">Adresse</dt>
+            <dd class="text-white font-semibold"><%= [@pav.address, @pav.zip, @pav.city].compact.join(", ") %></dd>
+          </div>
+        </dl>
+
+        <%# Graphique remplissage 30j %>
+        <div class="border-t border-gray-800 pt-5">
+          <div class="text-xs text-gray-500 mb-3">Remplissage sur 30 jours</div>
+          <% if @has_chart_data %>
+            <div data-controller="chart" data-chart-data-value="<%= @chart_data %>">
+              <canvas data-chart-target="canvas" class="w-full"></canvas>
+            </div>
+          <% else %>
+            <p class="text-sm text-gray-500 text-center py-8">Aucune donnée disponible.</p>
+          <% end %>
+        </div>
+
+      </div>
+
+      <%# Onglet 2 : Relevés capteur %>
+      <div data-tabs-target="panel" class="hidden flex-1 overflow-y-auto px-5 py-4">
+        <% if @sensor_readings.any? %>
+          <% readings_arr = @sensor_readings.to_a %>
+          <table class="w-full text-sm">
+            <thead>
+              <tr class="text-left text-xs text-gray-500 border-b border-gray-800">
+                <th class="pb-2 font-medium">Date</th>
+                <th class="pb-2 font-medium text-right">Évolution</th>
+                <th class="pb-2 font-medium text-right">Remplissage</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-800">
+              <% readings_arr.each_with_index do |log, i| %>
+                <% fill_val = log.payload["fill_percent"]&.to_f %>
+                <% prev_fill = readings_arr[i + 1]&.payload&.dig("fill_percent")&.to_f %>
+                <% delta = fill_val && prev_fill ? (fill_val - prev_fill).round : nil %>
+                <tr>
+                  <td class="py-2 text-gray-400 text-xs"><%= log.occurred_at.strftime("%d/%m/%Y %H:%M") %></td>
+                  <td class="py-2 text-right text-xs">
+                    <% if delta %>
+                      <% if delta > 0 %>
+                        <span class="text-red-400">+<%= delta %> %</span>
+                      <% elsif delta < 0 %>
+                        <span class="text-green-400"><%= delta %> %</span>
+                      <% else %>
+                        <span class="text-gray-600">—</span>
+                      <% end %>
+                    <% else %>
+                      <span class="text-gray-700">—</span>
+                    <% end %>
+                  </td>
+                  <td class="py-2 text-right">
+                    <% if fill_val %>
+                      <span class="text-xs font-medium px-2 py-0.5 rounded-md <%= fill_val > 80 ? "bg-red-950 text-red-300" : fill_val > 50 ? "bg-yellow-950 text-yellow-300" : "bg-green-950 text-green-300" %>">
+                        <%= fill_val.round %> %
+                      </span>
+                    <% else %>
+                      <span class="text-gray-600">—</span>
+                    <% end %>
+                  </td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+          <% if @pagy_readings.pages > 1 %>
+            <% prev_r = @pagy_readings.page > 1 ? @pagy_readings.page - 1 : nil %>
+            <% next_r = @pagy_readings.page < @pagy_readings.pages ? @pagy_readings.page + 1 : nil %>
+            <div class="flex items-center justify-between mt-4 text-xs">
+              <% if prev_r %>
+                <%= link_to "← Préc.", pav_path(@pav, page_r: prev_r, tab: 1), class: "text-yellow-400 hover:text-yellow-300 transition-colors" %>
+              <% else %>
+                <span class="text-gray-700">← Préc.</span>
+              <% end %>
+              <span class="text-gray-500"><%= @pagy_readings.page %> / <%= @pagy_readings.pages %></span>
+              <% if next_r %>
+                <%= link_to "Suiv. →", pav_path(@pav, page_r: next_r, tab: 1), class: "text-yellow-400 hover:text-yellow-300 transition-colors" %>
+              <% else %>
+                <span class="text-gray-700">Suiv. →</span>
+              <% end %>
+            </div>
+          <% end %>
+        <% else %>
+          <p class="text-sm text-gray-500 text-center py-10">Aucune lecture capteur.</p>
+        <% end %>
+      </div>
+
+      <%# Onglet 3 : Dépôts badge %>
+      <div data-tabs-target="panel" class="hidden flex-1 overflow-y-auto px-5 py-4">
+        <% if @badge_deposits.any? %>
+          <table class="w-full text-sm">
+            <thead>
+              <tr class="text-left text-xs text-gray-500 border-b border-gray-800">
+                <th class="pb-2 font-medium">Date</th>
+                <th class="pb-2 font-medium">Badge</th>
+                <th class="pb-2 font-medium">Prestataire</th>
+                <th class="pb-2 font-medium text-right">Statut</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-800">
+              <% @badge_deposits.each do |log| %>
+                <% granted = log.payload["access_granted"] %>
+                <% reasons = log.anomaly_reasons %>
+                <tr>
+                  <td class="py-2 text-gray-400 text-xs whitespace-nowrap"><%= log.occurred_at.strftime("%d/%m/%Y") %></td>
+                  <td class="py-2 text-xs">
+                    <span class="font-mono text-gray-400"><%= log.payload["badge_id"] || "—" %></span>
+                    <% if reasons.any? %>
+                      <div class="text-gray-600 mt-0.5"><%= reasons.join(", ") %></div>
+                    <% end %>
+                  </td>
+                  <td class="py-2 text-gray-500 text-xs"><%= log.payload["badge_provider"] || "—" %></td>
+                  <td class="py-2 text-right">
+                    <% if granted.nil? %>
+                      <span class="text-gray-600 text-xs">—</span>
+                    <% elsif granted %>
+                      <span class="text-xs px-2 py-0.5 rounded-md bg-green-950 text-green-300">Accepté</span>
+                    <% else %>
+                      <span class="text-xs px-2 py-0.5 rounded-md bg-red-950 text-red-300">Refusé</span>
+                    <% end %>
+                  </td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+          <% if @pagy_deposits.pages > 1 %>
+            <% prev_d = @pagy_deposits.page > 1 ? @pagy_deposits.page - 1 : nil %>
+            <% next_d = @pagy_deposits.page < @pagy_deposits.pages ? @pagy_deposits.page + 1 : nil %>
+            <div class="flex items-center justify-between mt-4 text-xs">
+              <% if prev_d %>
+                <%= link_to "← Préc.", pav_path(@pav, page_d: prev_d, tab: 2), class: "text-yellow-400 hover:text-yellow-300 transition-colors" %>
+              <% else %>
+                <span class="text-gray-700">← Préc.</span>
+              <% end %>
+              <span class="text-gray-500"><%= @pagy_deposits.page %> / <%= @pagy_deposits.pages %></span>
+              <% if next_d %>
+                <%= link_to "Suiv. →", pav_path(@pav, page_d: next_d, tab: 2), class: "text-yellow-400 hover:text-yellow-300 transition-colors" %>
+              <% else %>
+                <span class="text-gray-700">Suiv. →</span>
+              <% end %>
+            </div>
+          <% end %>
+        <% else %>
+          <p class="text-sm text-gray-500 text-center py-10">Aucun dépôt badge.</p>
+        <% end %>
+      </div>
+
+      <%# Onglet 4 : Incidents %>
+      <div data-tabs-target="panel" class="hidden flex-1 overflow-y-auto px-5 py-4">
+        <% if @incidents.any? %>
+          <div class="space-y-3">
+            <% @incidents.each do |incident| %>
+              <div class="bg-gray-800 rounded-lg p-3 border border-gray-700">
+                <div class="flex items-center justify-between mb-2">
+                  <span class="text-xs text-gray-500"><%= incident.occurred_at.strftime("%d/%m/%Y") %></span>
+                  <% if incident.resolved? %>
+                    <span class="text-xs px-2 py-0.5 rounded-md bg-green-950 text-green-300 border border-green-800">Résolu</span>
+                  <% else %>
+                    <span class="text-xs px-2 py-0.5 rounded-md bg-yellow-950 text-yellow-300 border border-yellow-800">Ouvert</span>
+                  <% end %>
+                </div>
+                <p class="text-sm text-gray-200"><%= incident.description %></p>
+                <% unless incident.resolved? %>
+                  <div data-controller="confirm" class="mt-3">
+                    <button data-action="click->confirm#show" class="text-xs px-3 py-1.5 rounded-lg bg-gray-700/60 border border-gray-600 text-gray-300 hover:border-yellow-400 hover:text-yellow-300 transition-colors cursor-pointer">
+                      Marquer comme résolu
+                    </button>
+                    <div data-confirm-target="dialog" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+                      <div class="bg-gray-900 border border-gray-700 rounded-2xl p-6 shadow-2xl w-72">
+                        <h3 class="text-sm font-semibold text-white mb-1.5">Confirmer la résolution</h3>
+                        <p class="text-xs text-gray-500 mb-5">Cet incident sera marqué comme résolu.</p>
+                        <div class="flex gap-2.5">
+                          <%= form_with url: resolve_incident_path(incident), method: :patch, data: { turbo_frame: "_top" }, class: "flex-1" do %>
+                            <button type="submit" class="w-full text-sm py-2 rounded-xl bg-yellow-400 text-gray-900 font-semibold hover:bg-yellow-300 transition-colors cursor-pointer">Confirmer</button>
+                          <% end %>
+                          <button data-action="click->confirm#hide" class="flex-1 text-sm py-2 rounded-xl bg-gray-800 border border-gray-700 text-gray-400 hover:text-white transition-colors cursor-pointer">Annuler</button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                <% end %>
+              </div>
+            <% end %>
+          </div>
+          <% if @pagy_incidents.pages > 1 %>
+            <% prev_i = @pagy_incidents.page > 1 ? @pagy_incidents.page - 1 : nil %>
+            <% next_i = @pagy_incidents.page < @pagy_incidents.pages ? @pagy_incidents.page + 1 : nil %>
+            <div class="flex items-center justify-between mt-4 text-xs">
+              <% if prev_i %>
+                <%= link_to "← Préc.", pav_path(@pav, page_i: prev_i, tab: 3), class: "text-yellow-400 hover:text-yellow-300 transition-colors" %>
+              <% else %>
+                <span class="text-gray-700">← Préc.</span>
+              <% end %>
+              <span class="text-gray-500"><%= @pagy_incidents.page %> / <%= @pagy_incidents.pages %></span>
+              <% if next_i %>
+                <%= link_to "Suiv. →", pav_path(@pav, page_i: next_i, tab: 3), class: "text-yellow-400 hover:text-yellow-300 transition-colors" %>
+              <% else %>
+                <span class="text-gray-700">Suiv. →</span>
+              <% end %>
+            </div>
+          <% end %>
+        <% else %>
+          <p class="text-sm text-gray-500 text-center py-10">Aucun incident.</p>
+        <% end %>
+      </div>
+
+    </div>
+  </div>
+</turbo-frame>

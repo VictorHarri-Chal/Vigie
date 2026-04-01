@@ -1,0 +1,112 @@
+<% content_for :title, "Incidents" %>
+
+<div class="py-8">
+
+  <div class="flex items-center justify-between mb-6">
+    <h1 class="text-xl font-semibold text-white">Incidents</h1>
+
+    <div class="flex bg-gray-900 border border-gray-800 rounded-xl p-1 gap-1 text-sm">
+      <%= link_to "Tous",
+          incidents_path,
+          class: "px-4 py-1.5 rounded-lg transition-colors #{params[:status].blank? ? "bg-yellow-400 text-gray-900 font-semibold" : "text-gray-400 hover:text-white"}" %>
+      <%= link_to "Ouverts",
+          incidents_path(status: "open"),
+          class: "px-4 py-1.5 rounded-lg transition-colors #{params[:status] == "open" ? "bg-yellow-400 text-gray-900 font-semibold" : "text-gray-400 hover:text-white"}" %>
+      <%= link_to "Résolus",
+          incidents_path(status: "resolved"),
+          class: "px-4 py-1.5 rounded-lg transition-colors #{params[:status] == "resolved" ? "bg-yellow-400 text-gray-900 font-semibold" : "text-gray-400 hover:text-white"}" %>
+    </div>
+  </div>
+
+  <% if @incidents.any? %>
+    <div class="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden">
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="text-left text-xs text-gray-500 border-b border-gray-800">
+            <th class="px-5 py-3 font-medium">PAV</th>
+            <th class="px-5 py-3 font-medium">Date</th>
+            <th class="px-5 py-3 font-medium">Note</th>
+            <th class="px-5 py-3 font-medium">Statut</th>
+            <th class="px-5 py-3 font-medium"></th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-800">
+          <% @incidents.each do |incident| %>
+            <tr class="hover:bg-gray-800/50 transition-colors">
+              <td class="px-5 py-3">
+                <%= link_to incident.pav.name, pav_path(incident.pav, from: "incidents"),
+                    class: "text-yellow-400 hover:text-yellow-300 transition-colors font-medium" %>
+                <div class="text-xs text-gray-600 mt-0.5"><%= incident.pav.pav_id %></div>
+              </td>
+              <td class="px-5 py-3 text-gray-400 whitespace-nowrap">
+                <%= incident.occurred_at.strftime("%d/%m/%Y") %>
+              </td>
+              <td class="px-5 py-3 text-gray-300 max-w-xs">
+                <span class="line-clamp-2"><%= incident.description %></span>
+              </td>
+              <td class="px-5 py-3">
+                <% if incident.resolved? %>
+                  <span class="text-xs px-2 py-1 rounded-md bg-green-950 text-green-300 border border-green-800">Résolu</span>
+                <% else %>
+                  <span class="text-xs px-2 py-1 rounded-md bg-yellow-950 text-yellow-300 border border-yellow-800">Ouvert</span>
+                <% end %>
+              </td>
+              <td class="px-5 py-3 text-right">
+                <% if incident.resolved? %>
+                  <%= button_to "Réouvrir", reopen_incident_path(incident), method: :patch,
+                      class: "text-xs px-2.5 py-1 rounded-md bg-gray-800 border border-gray-700 text-gray-400 hover:border-gray-500 hover:text-gray-200 transition-colors cursor-pointer" %>
+                <% else %>
+                  <div data-controller="confirm" class="relative inline-block">
+                    <button data-action="click->confirm#show" class="text-xs px-2.5 py-1 rounded-md bg-gray-800 border border-gray-700 text-gray-300 hover:border-yellow-400 hover:text-yellow-400 transition-colors cursor-pointer">
+                      Résoudre
+                    </button>
+                    <div data-confirm-target="dialog" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+                      <div class="bg-gray-900 border border-gray-700 rounded-2xl p-6 shadow-2xl w-72 text-left">
+                        <h3 class="text-sm font-semibold text-white mb-1.5">Confirmer la résolution</h3>
+                        <p class="text-xs text-gray-500 mb-5">Cet incident sera marqué comme résolu.</p>
+                        <div class="flex gap-2.5">
+                          <%= form_with url: resolve_incident_path(incident), method: :patch, class: "flex-1" do %>
+                            <button type="submit" class="w-full text-sm py-2 rounded-xl bg-yellow-400 text-gray-900 font-semibold hover:bg-yellow-300 transition-colors cursor-pointer">Confirmer</button>
+                          <% end %>
+                          <button data-action="click->confirm#hide" class="flex-1 text-sm py-2 rounded-xl bg-gray-800 border border-gray-700 text-gray-400 hover:text-white transition-colors cursor-pointer">Annuler</button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                <% end %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+
+    <% if @pagy.pages > 1 %>
+      <% prev_page = @pagy.page > 1 ? @pagy.page - 1 : nil %>
+      <% next_page = @pagy.page < @pagy.pages ? @pagy.page + 1 : nil %>
+      <div class="flex items-center justify-between mt-6 text-sm">
+        <% if prev_page %>
+          <%= link_to "← Page précédente", incidents_path(status: params[:status], page: prev_page),
+              class: "text-yellow-400 hover:text-yellow-300 transition-colors" %>
+        <% else %>
+          <span class="text-gray-700">← Page précédente</span>
+        <% end %>
+
+        <span class="text-gray-500">Page <%= @pagy.page %> sur <%= @pagy.pages %></span>
+
+        <% if next_page %>
+          <%= link_to "Page suivante →", incidents_path(status: params[:status], page: next_page),
+              class: "text-yellow-400 hover:text-yellow-300 transition-colors" %>
+        <% else %>
+          <span class="text-gray-700">Page suivante →</span>
+        <% end %>
+      </div>
+    <% end %>
+
+  <% else %>
+    <div class="bg-gray-900 border border-gray-800 rounded-xl px-8 py-16 text-center">
+      <p class="text-gray-500">Aucun incident<%= params[:status] == "open" ? " ouvert" : params[:status] == "resolved" ? " résolu" : "" %>.</p>
+    </div>
+  <% end %>
+
+</div>

@@ -8,6 +8,7 @@ Rails.application.routes.draw do
   resources :incidents, only: [ :index ] do
     member do
       patch :resolve
+      patch :reopen
     end
   end
 

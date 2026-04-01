@@ -10,4 +10,24 @@ class Log < ApplicationRecord
   scope :incidents,       -> { where(event_type: "incident") }
   scope :open_incidents,  -> { incidents.where("payload->>'resolved' = 'false'") }
   scope :recent,          -> { order(occurred_at: :desc) }
+
+  ANOMALY_LABELS = {
+    "badge_revoked"      => "Badge révoqué",
+    "possible_duplicate" => "Doublon possible",
+    "unusual_hour"       => "Horaire inhabituel"
+  }.freeze
+
+  def resolved?
+    payload&.dig("resolved").to_s == "true"
+  end
+
+  def description
+    payload&.dig("note") || payload&.dig("description") || "Aucune description"
+  end
+
+  def anomaly_reasons
+    flags = (payload["anomaly_flags"] || []).dup
+    flags |= [ "badge_revoked" ] if payload["badge_revoked"]
+    flags.filter_map { |f| ANOMALY_LABELS[f] }
+  end
 end
