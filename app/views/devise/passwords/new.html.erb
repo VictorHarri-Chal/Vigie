@@ -1,0 +1,32 @@
+<% content_for :main_class, "flex items-center justify-center min-h-screen" %>
+<% content_for :title, "Mot de passe oublié" %>
+
+<div class="w-full max-w-sm px-4">
+  <div class="text-center mb-8">
+    <h1 class="text-2xl font-semibold text-white tracking-tight">PAV Dashboard</h1>
+    <p class="text-gray-500 text-sm mt-1">Réinitialisation du mot de passe</p>
+  </div>
+
+  <div class="bg-gray-900 border border-gray-800 rounded-2xl p-8">
+    <%= form_for(resource, as: resource_name, url: password_path(resource_name), html: { method: :post }) do |f| %>
+      <div class="space-y-5">
+        <p class="text-sm text-gray-400">Entrez votre adresse e-mail et nous vous enverrons un lien pour réinitialiser votre mot de passe.</p>
+
+        <div>
+          <%= f.label :email, "Adresse e-mail", class: "block text-sm text-gray-400 mb-1.5" %>
+          <%= f.email_field :email,
+              autofocus: true,
+              autocomplete: "email",
+              class: "w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-white placeholder-gray-600 focus:outline-none focus:border-yellow-400 transition-colors text-sm" %>
+        </div>
+
+        <%= f.submit "Envoyer les instructions",
+            class: "w-full bg-yellow-400 hover:bg-yellow-300 text-gray-900 font-semibold rounded-lg px-4 py-2.5 transition-colors cursor-pointer text-sm" %>
+      </div>
+    <% end %>
+  </div>
+
+  <p class="text-center text-sm text-gray-600 mt-4">
+    <%= link_to "← Retour à la connexion", new_user_session_path, class: "text-yellow-400 hover:text-yellow-300 transition-colors" %>
+  </p>
+</div>

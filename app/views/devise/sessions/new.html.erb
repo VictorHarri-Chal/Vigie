@@ -1,0 +1,46 @@
+<% content_for :main_class, "flex items-center justify-center min-h-screen" %>
+<% content_for :title, "Connexion" %>
+
+<div class="w-full max-w-sm px-4">
+  <div class="text-center mb-8">
+    <h1 class="text-2xl font-semibold text-white tracking-tight">PAV Dashboard</h1>
+    <p class="text-gray-500 text-sm mt-1">Espace agents municipaux</p>
+  </div>
+
+  <div class="bg-gray-900 border border-gray-800 rounded-2xl p-8">
+    <%= form_for(resource, as: resource_name, url: session_path(resource_name)) do |f| %>
+      <div class="space-y-5">
+        <div>
+          <%= f.label :email, "Adresse e-mail", class: "block text-sm text-gray-400 mb-1.5" %>
+          <%= f.email_field :email,
+              autofocus: true,
+              autocomplete: "email",
+              class: "w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-white placeholder-gray-600 focus:outline-none focus:border-yellow-400 transition-colors text-sm" %>
+        </div>
+
+        <div>
+          <div class="flex items-center justify-between mb-1.5">
+            <%= f.label :password, "Mot de passe", class: "text-sm text-gray-400" %>
+            <%= link_to "Mot de passe oublié ?", new_user_password_path, class: "text-xs text-gray-500 hover:text-yellow-400 transition-colors" %>
+          </div>
+          <%= f.password_field :password,
+              autocomplete: "current-password",
+              class: "w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-white placeholder-gray-600 focus:outline-none focus:border-yellow-400 transition-colors text-sm" %>
+        </div>
+
+        <label class="flex items-center gap-2.5 cursor-pointer">
+          <%= f.check_box :remember_me, class: "w-4 h-4 rounded border-gray-600 bg-gray-800 text-yellow-400 cursor-pointer" %>
+          <span class="text-sm text-gray-400">Se souvenir de moi</span>
+        </label>
+
+        <%= f.submit "Se connecter",
+            class: "w-full bg-yellow-400 hover:bg-yellow-300 text-gray-900 font-semibold rounded-lg px-4 py-2.5 transition-colors cursor-pointer text-sm" %>
+      </div>
+    <% end %>
+  </div>
+
+  <p class="text-center text-sm text-gray-600 mt-4">
+    Pas encore de compte ?
+    <%= link_to "Créer un compte", new_user_registration_path, class: "text-yellow-400 hover:text-yellow-300 transition-colors" %>
+  </p>
+</div>
