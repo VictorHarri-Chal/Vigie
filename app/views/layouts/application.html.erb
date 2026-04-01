@@ -1,35 +1,66 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title><%= content_for(:title) || "Test Technique Victor Harri Chal" %></title>
+    <title><%= content_for(:title) || "PAV Dashboard" %></title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="mobile-web-app-capable" content="yes">
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
-
     <%= yield :head %>
-
-    <%# Enable PWA manifest for installable apps (make sure to enable in config/routes.rb too!) %>
-    <%#= tag.link rel: "manifest", href: pwa_manifest_path(format: :json) %>
-
     <link rel="icon" href="/icon.png" type="image/png">
-    <link rel="icon" href="/icon.svg" type="image/svg+xml">
-    <link rel="apple-touch-icon" href="/icon.png">
-
-    <%# Includes all stylesheet files in app/assets/stylesheets %>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
     <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
     <%= javascript_importmap_tags %>
   </head>
 
-  <body>
-    <% if notice %>
-      <p><%= notice %></p>
+  <body class="bg-gray-950 text-gray-100">
+    <% if user_signed_in? %>
+      <nav class="bg-gray-900 border-b border-gray-800 px-6 h-14 flex items-center justify-between">
+        <%= link_to "PAV Dashboard", root_path, class: "font-semibold text-white tracking-tight" %>
+        <div class="flex gap-1">
+          <% if current_page?(root_path) %>
+            <span class="flex items-center justify-center h-9 w-9 rounded-lg text-green-500 opacity-50 cursor-default">
+              <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/>
+              </svg>
+            </span>
+          <% else %>
+            <%= link_to root_path, class: "group relative flex items-center justify-center overflow-hidden h-9 w-9 cursor-pointer hover:w-[4.5rem] rounded-lg text-green-500 hover:bg-gray-800/80 transition-all duration-200 ease-in-out" do %>
+              <svg class="w-4 h-4 shrink-0 transition-all duration-200 group-hover:opacity-0 group-hover:-translate-x-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/>
+              </svg>
+              <span class="absolute text-xs font-medium whitespace-nowrap opacity-0 translate-x-3 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-200">Carte</span>
+            <% end %>
+          <% end %>
+
+          <% if current_page?(incidents_path) %>
+            <span class="flex items-center justify-center h-9 w-9 rounded-lg text-orange-500 opacity-50 cursor-default">
+              <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+              </svg>
+            </span>
+          <% else %>
+            <%= link_to incidents_path, class: "group relative flex items-center justify-center overflow-hidden h-9 w-9 cursor-pointer hover:w-[6rem] rounded-lg text-orange-500 hover:bg-gray-800/80 transition-all duration-200 ease-in-out" do %>
+              <svg class="w-4 h-4 shrink-0 transition-all duration-200 group-hover:opacity-0 group-hover:-translate-x-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+              </svg>
+              <span class="absolute text-xs font-medium whitespace-nowrap opacity-0 translate-x-3 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-200">Incidents</span>
+            <% end %>
+          <% end %>
+
+          <%= link_to destroy_user_session_path, data: { turbo_method: :delete }, class: "group relative flex items-center justify-center overflow-hidden h-9 w-9 cursor-pointer hover:w-[7rem] rounded-lg text-red-500 hover:bg-gray-800/80 transition-all duration-200 ease-in-out" do %>
+            <svg class="w-4 h-4 shrink-0 transition-all duration-200 group-hover:opacity-0 group-hover:-translate-x-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M5.636 5.636a9 9 0 1012.728 0M12 3v9"/>
+            </svg>
+            <span class="absolute text-xs font-medium whitespace-nowrap opacity-0 translate-x-3 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-200">Déconnexion</span>
+          <% end %>
+        </div>
+      </nav>
     <% end %>
-    <% if alert %>
-      <p><%= alert %></p>
-    <% end %>
-    <main class="container mx-auto mt-28 px-5 flex">
+
+
+    <main class="<%= content_for?(:main_class) ? yield(:main_class) : "container mx-auto mt-8 px-5" %>">
       <%= yield %>
     </main>
   </body>

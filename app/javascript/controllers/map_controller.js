@@ -1,0 +1,120 @@
+import { Controller } from "@hotwired/stimulus"
+
+export default class extends Controller {
+  static values = { pavs: Array }
+  static targets = ["panel", "wasteTypeFilter", "fillLevelFilter"]
+
+  connect() {
+    this.map = L.map("map", { zoomControl: false, minZoom: 12 }).setView([48.8566, 2.3522], 11)
+
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      attribution: "© OpenStreetMap contributors"
+    }).addTo(this.map)
+
+    L.control.zoom({ position: "bottomright" }).addTo(this.map)
+
+    this.markers = []
+    this.activeMarker = null
+    this.pavsValue.forEach(pav => this.addMarker(pav))
+
+    if (this.markers.length > 0) {
+      const group = L.featureGroup(this.markers)
+      this.map.fitBounds(group.getBounds(), { padding: [60, 60] })
+    }
+  }
+
+  disconnect() {
+    this.map?.remove()
+  }
+
+  addMarker(pav) {
+    const color = this.fillColor(pav.fill_percent)
+    const marker = L.marker([pav.lat, pav.lng], { icon: this.makeIcon(color, false) })
+    marker.pav = pav
+    marker.color = color
+    marker.addTo(this.map)
+    marker.on("click", () => this.openPanel(pav.id, marker))
+
+    this.markers.push(marker)
+  }
+
+  makeIcon(color, active) {
+    if (active) {
+      return L.divIcon({
+        html: `<div style="width:30px;height:30px;border-radius:50%;background:${color};border:3px solid #fff;box-shadow:0 0 0 5px rgba(255,255,255,0.25),0 0 0 9px ${color}40,0 6px 24px rgba(0,0,0,0.8);cursor:pointer;"></div>`,
+        className: "",
+        iconSize: [30, 30],
+        iconAnchor: [15, 15]
+      })
+    }
+
+    return L.divIcon({
+      html: `<div style="width:24px;height:24px;border-radius:50%;background:${color};border:3px solid rgba(255,255,255,0.95);box-shadow:0 0 0 5px ${color}40,0 6px 20px rgba(0,0,0,0.75);cursor:pointer;"></div>`,
+      className: "",
+      iconSize: [24, 24],
+      iconAnchor: [12, 12]
+    })
+  }
+
+  filterMarkers() {
+    const wasteType = this.wasteTypeFilterTarget.value
+    const fillLevel = this.fillLevelFilterTarget.value
+
+    this.markers.forEach(marker => {
+      const matchesWaste = !wasteType || marker.pav.waste_type === wasteType
+      const matchesFill = this.matchesFillLevel(marker.pav.fill_percent, fillLevel)
+
+      if (matchesWaste && matchesFill) {
+        marker.addTo(this.map)
+      } else {
+        marker.remove()
+      }
+    })
+  }
+
+  matchesFillLevel(fill, level) {
+    if (!level) return true
+    if (level === "unknown") return fill === null || fill === undefined
+    if (fill === null || fill === undefined) return false
+    if (level === "low") return fill < 50
+    if (level === "medium") return fill >= 50 && fill <= 80
+    if (level === "high") return fill > 80
+    return true
+  }
+
+  openPanel(pavId, marker) {
+    if (this.activeMarker === marker) {
+      this.closePanel()
+      return
+    }
+
+    if (this.activeMarker) {
+      this.activeMarker.setIcon(this.makeIcon(this.activeMarker.color, false))
+    }
+
+    marker.setIcon(this.makeIcon(marker.color, true))
+    this.activeMarker = marker
+
+    const frame = document.querySelector("turbo-frame#pav-panel")
+    frame.src = `/pavs/${pavId}`
+    this.panelTarget.classList.remove("translate-x-full")
+  }
+
+  closePanel() {
+    if (this.activeMarker) {
+      this.activeMarker.setIcon(this.makeIcon(this.activeMarker.color, false))
+      this.activeMarker = null
+    }
+
+    this.panelTarget.classList.add("translate-x-full")
+    const frame = document.querySelector("turbo-frame#pav-panel")
+    if (frame) frame.src = ""
+  }
+
+  fillColor(percent) {
+    if (percent === null || percent === undefined) return "#6b7280"
+    if (percent > 80) return "#f87171"
+    if (percent > 50) return "#facc15"
+    return "#4ade80"
+  }
+}

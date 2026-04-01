@@ -30,22 +30,24 @@ class PavsController < ApplicationController
   end
 
   def show
+    @from_incidents = params[:from] == "incidents"
     @active_tab = params[:tab].to_i
     @pagy_readings, @sensor_readings = pagy(:offset, @pav.logs.sensor_readings.recent, limit: 15, page_key: "page_r")
     @pagy_deposits, @badge_deposits  = pagy(:offset, @pav.logs.badge_deposits.recent, limit: 15, page_key: "page_d")
     @pagy_incidents, @incidents      = pagy(:offset, @pav.logs.incidents.recent, limit: 15, page_key: "page_i")
 
     latest = @pav.logs.sensor_readings.maximum(:occurred_at)
-    @chart_data = if latest
+    chart_points = if latest
       @pav.logs.sensor_readings
         .where(occurred_at: (latest - 30.days)..latest)
         .order(:occurred_at)
         .pluck(:occurred_at, Arel.sql("payload->>'fill_percent'"))
         .map { |date, fill| { date: date.strftime("%Y-%m-%d"), fill_percent: fill.to_f } }
-        .to_json
     else
-      [].to_json
+      []
     end
+    @chart_data = chart_points.to_json
+    @has_chart_data = chart_points.any?
   end
 
   private
