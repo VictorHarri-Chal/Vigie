@@ -20,6 +20,7 @@ class PavsController < ApplicationController
     @pavs_json = @pavs.map { |pav|
       {
         id: pav.id,
+        pav_id: pav.pav_id,
         lat: pav.lat,
         lng: pav.lng,
         name: pav.name,
@@ -36,7 +37,8 @@ class PavsController < ApplicationController
     @pagy_deposits, @badge_deposits  = pagy(:offset, @pav.logs.badge_deposits.recent, limit: 15, page_key: "page_d")
     @pagy_incidents, @incidents      = pagy(:offset, @pav.logs.incidents.recent, limit: 15, page_key: "page_i")
 
-    latest = @pav.logs.sensor_readings.maximum(:occurred_at)
+    @latest_reading_at = @pav.logs.sensor_readings.maximum(:occurred_at)
+    latest = @latest_reading_at
     chart_points = if latest
       @pav.logs.sensor_readings
         .where(occurred_at: (latest - 30.days)..latest)

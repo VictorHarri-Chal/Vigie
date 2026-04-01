@@ -60,10 +60,15 @@
           <% fill_f = fill.to_f %>
           <div class="mb-5 bg-gray-800 rounded-xl p-4 border border-gray-700">
             <div class="text-xs text-gray-500 mb-2">Taux de remplissage actuel</div>
-            <div class="flex items-end gap-3 mb-3">
+            <div class="flex items-end justify-between mb-3">
               <span class="text-4xl font-bold <%= fill_f > 80 ? "text-red-400" : fill_f > 50 ? "text-yellow-400" : "text-green-400" %>">
                 <%= fill_f.round %> %
               </span>
+              <% if @latest_reading_at %>
+                <% days_ago = [((Time.current - @latest_reading_at) / 1.day).floor, 0].max %>
+                <% freshness_label = days_ago == 0 ? "Aujourd'hui" : days_ago == 1 ? "Hier" : "il y a #{days_ago} j" %>
+                <span class="text-xs mb-1 <%= days_ago >= 7 ? "text-red-400" : "text-gray-500" %>"><%= freshness_label %></span>
+              <% end %>
             </div>
             <div class="w-full bg-gray-700 rounded-full h-2">
               <div class="h-2 rounded-full <%= fill_f > 80 ? "bg-red-400" : fill_f > 50 ? "bg-yellow-400" : "bg-green-400" %>" style="width: <%= fill_f.round %>%"></div>
