@@ -18,7 +18,7 @@
         <% end %>
       <% else %>
         <button
-          class="flex-shrink-0 p-1.5 rounded-lg text-gray-400 hover:text-white hover:bg-gray-800 transition-colors"
+          class="flex-shrink-0 p-1.5 rounded-lg text-gray-400 hover:text-white hover:bg-gray-800 transition-colors cursor-pointer"
           data-action="click->map#closePanel"
           aria-label="Fermer"
         >
@@ -253,7 +253,7 @@
                         <h3 class="text-sm font-semibold text-white mb-1.5">Confirmer la résolution</h3>
                         <p class="text-xs text-gray-500 mb-5">Cet incident sera marqué comme résolu.</p>
                         <div class="flex gap-2.5">
-                          <%= form_with url: resolve_incident_path(incident), method: :patch, data: { turbo_frame: "_top" }, class: "flex-1" do %>
+                          <%= form_with url: resolve_incident_path(incident), method: :patch, class: "flex-1" do %>
                             <button type="submit" class="w-full text-sm py-2 rounded-xl bg-yellow-400 text-gray-900 font-semibold hover:bg-yellow-300 transition-colors cursor-pointer">Confirmer</button>
                           <% end %>
                           <button data-action="click->confirm#hide" class="flex-1 text-sm py-2 rounded-xl bg-gray-800 border border-gray-700 text-gray-400 hover:text-white transition-colors cursor-pointer">Annuler</button>

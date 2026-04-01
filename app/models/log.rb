@@ -8,7 +8,7 @@ class Log < ApplicationRecord
   scope :sensor_readings, -> { where(event_type: "sensor_reading") }
   scope :badge_deposits,  -> { where(event_type: "badge_deposit") }
   scope :incidents,       -> { where(event_type: "incident") }
-  scope :open_incidents,  -> { incidents.where("payload->>'resolved' = 'false'") }
+  scope :open_incidents,  -> { incidents.where("(payload->>'resolved') IS DISTINCT FROM 'true'") }
   scope :recent,          -> { order(occurred_at: :desc) }
 
   ANOMALY_LABELS = {
@@ -26,6 +26,7 @@ class Log < ApplicationRecord
   end
 
   def anomaly_reasons
+    return [] if payload.nil?
     flags = (payload["anomaly_flags"] || []).dup
     flags |= [ "badge_revoked" ] if payload["badge_revoked"]
     flags.filter_map { |f| ANOMALY_LABELS[f] }

@@ -14,13 +14,13 @@ class IncidentsController < ApplicationController
   def resolve
     @incident.payload = (@incident.payload || {}).merge("resolved" => true)
     @incident.save!
-    redirect_back(fallback_location: incidents_path)
+    redirect_to request.referer&.include?("/incidents") ? incidents_path : pav_path(@incident.pav, tab: 3)
   end
 
   def reopen
     @incident.payload = (@incident.payload || {}).merge("resolved" => false)
     @incident.save!
-    redirect_back(fallback_location: incidents_path)
+    redirect_to request.referer&.include?("/incidents") ? incidents_path : pav_path(@incident.pav, tab: 3)
   end
 
   private
