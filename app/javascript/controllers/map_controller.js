@@ -2,7 +2,7 @@ import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
   static values = { pavs: Array }
-  static targets = ["panel", "wasteTypeFilter", "fillLevelFilter", "statPavs", "statFill", "statIncidents"]
+  static targets = ["panel", "wasteTypeFilter", "fillLevelFilter", "wasteTypeLabel", "fillLevelLabel", "resetBtn", "statPavs", "statFill", "statIncidents"]
 
   connect() {
     this.map = L.map("map", { zoomControl: false, minZoom: 12 }).setView([48.8566, 2.3522], 11)
@@ -75,6 +75,24 @@ export default class extends Controller {
     })
 
     this.updateStats(visible)
+
+    const hasFilter = !!this.wasteTypeFilterTarget.value || !!this.fillLevelFilterTarget.value
+    this.resetBtnTarget.classList.toggle("hidden", !hasFilter)
+    this.resetBtnTarget.classList.toggle("flex", hasFilter)
+  }
+
+  resetFilters() {
+    this.wasteTypeFilterTarget.value = ""
+    this.fillLevelFilterTarget.value = ""
+    this.wasteTypeLabelTarget.textContent = "Tous types"
+    this.fillLevelLabelTarget.textContent = "Tous niveaux"
+
+    this.element.querySelectorAll("[data-dropdown-target='option']").forEach(opt => {
+      opt.classList.toggle("text-yellow-400", opt.dataset.value === "")
+      opt.classList.toggle("text-gray-300", opt.dataset.value !== "")
+    })
+
+    this.wasteTypeFilterTarget.dispatchEvent(new Event("change", { bubbles: true }))
   }
 
   updateStats(pavs) {
