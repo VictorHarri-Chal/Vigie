@@ -5,6 +5,8 @@ Rails.application.routes.draw do
 
   resources :pavs, only: [ :index, :show ]
 
+  get "stats" => "stats#index", as: :stats
+
   resources :incidents, only: [ :index ] do
     member do
       patch :resolve

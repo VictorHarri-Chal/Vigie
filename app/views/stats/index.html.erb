@@ -1,0 +1,19 @@
+<% content_for :title, "Statistiques" %>
+
+<div class="py-8">
+  <h1 class="text-xl font-semibold text-white mb-6">Statistiques</h1>
+
+  <div class="mb-5">
+    <%= render "stats/chart_card", title: "Remplissage moyen sur 30 jours", config: @fill_chart %>
+  </div>
+
+  <div class="grid grid-cols-2 gap-5 mb-5">
+    <%= render "stats/chart_card", title: "Incidents par type de déchet", config: @waste_chart %>
+    <%= render "stats/chart_card", title: "Volume d'incidents sur 6 mois", config: @timeline_chart %>
+  </div>
+
+  <div class="grid grid-cols-2 gap-5">
+    <%= render "stats/chart_card", title: "Top 5 PAVs les plus actifs", config: @active_chart %>
+    <%= render "stats/chart_card", title: "Top 5 PAVs les plus problématiques", config: @problematic_chart %>
+  </div>
+</div>

@@ -37,6 +37,21 @@
             <% end %>
           <% end %>
 
+          <% if current_page?(stats_path) %>
+            <span class="flex items-center justify-center h-9 w-9 rounded-lg text-blue-400 opacity-50 cursor-default">
+              <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M16 8v8m-4-5v5m-4-2v2m-2 4h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+              </svg>
+            </span>
+          <% else %>
+            <%= link_to stats_path, class: "group relative flex items-center justify-center overflow-hidden h-9 w-9 cursor-pointer hover:w-[7.5rem] rounded-lg text-blue-400 hover:bg-gray-800/80 transition-all duration-200 ease-in-out" do %>
+              <svg class="w-4 h-4 shrink-0 transition-all duration-200 group-hover:opacity-0 group-hover:-translate-x-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M16 8v8m-4-5v5m-4-2v2m-2 4h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+              </svg>
+              <span class="absolute text-xs font-medium whitespace-nowrap opacity-0 translate-x-3 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-200">Statistiques</span>
+            <% end %>
+          <% end %>
+
           <% if current_page?(incidents_path) %>
             <span class="flex items-center justify-center h-9 w-9 rounded-lg text-orange-500 opacity-50 cursor-default">
               <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
