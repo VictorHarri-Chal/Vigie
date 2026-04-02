@@ -12,6 +12,8 @@ class PavsController < ApplicationController
       h[r.pav_id] = r.fill_percent
     end
 
+    incidents_by_pav = Log.open_incidents.group(:pav_id).count
+
     @total_pavs = @pavs.size
     @open_incidents = Log.open_incidents.count
     fills = fill_by_pav.values.compact
@@ -25,7 +27,8 @@ class PavsController < ApplicationController
         lng: pav.lng,
         name: pav.name,
         waste_type: pav.waste_type,
-        fill_percent: fill_by_pav[pav.id]
+        fill_percent: fill_by_pav[pav.id],
+        open_incidents: incidents_by_pav[pav.id] || 0
       }
     }.to_json
   end

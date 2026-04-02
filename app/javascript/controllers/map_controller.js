@@ -2,7 +2,7 @@ import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
   static values = { pavs: Array }
-  static targets = ["panel", "wasteTypeFilter", "fillLevelFilter"]
+  static targets = ["panel", "wasteTypeFilter", "fillLevelFilter", "statPavs", "statFill", "statIncidents"]
 
   connect() {
     this.map = L.map("map", { zoomControl: false, minZoom: 12 }).setView([48.8566, 2.3522], 11)
@@ -60,6 +60,7 @@ export default class extends Controller {
   filterMarkers() {
     const wasteType = this.wasteTypeFilterTarget.value
     const fillLevel = this.fillLevelFilterTarget.value
+    const visible = []
 
     this.markers.forEach(marker => {
       const matchesWaste = !wasteType || marker.pav.waste_type === wasteType
@@ -67,10 +68,23 @@ export default class extends Controller {
 
       if (matchesWaste && matchesFill) {
         marker.addTo(this.map)
+        visible.push(marker.pav)
       } else {
         marker.remove()
       }
     })
+
+    this.updateStats(visible)
+  }
+
+  updateStats(pavs) {
+    const fills = pavs.map(p => p.fill_percent).filter(f => f !== null && f !== undefined)
+    const avgFill = fills.length > 0 ? Math.round(fills.reduce((a, b) => a + b, 0) / fills.length) : null
+    const incidents = pavs.reduce((sum, p) => sum + (p.open_incidents || 0), 0)
+
+    this.statPavsTarget.textContent = pavs.length
+    this.statFillTarget.textContent = avgFill !== null ? `${avgFill} %` : "—"
+    this.statIncidentsTarget.textContent = incidents
   }
 
   matchesFillLevel(fill, level) {
