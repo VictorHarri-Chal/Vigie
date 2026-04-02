@@ -1,5 +1,5 @@
 class IncidentsController < ApplicationController
-  before_action :set_incident, only: [ :resolve, :reopen ]
+  before_action :set_incident, only: [ :resolve, :reopen, :update_note ]
 
   def index
     @pavs = Pav.order(:name)
@@ -34,6 +34,21 @@ class IncidentsController < ApplicationController
         end
         send_data csv, filename: "incidents-#{Date.today}.csv", type: "text/csv"
       end
+    end
+  end
+
+  def update_note
+    @incident.payload = (@incident.payload || {}).merge("note" => params[:note].to_s.strip)
+    @incident.save!
+    respond_to do |format|
+      format.turbo_stream do
+        render turbo_stream: turbo_stream.replace(
+          "note-#{@incident.id}",
+          partial: "incidents/note",
+          locals: { incident: @incident }
+        )
+      end
+      format.html { redirect_to incidents_path }
     end
   end
 

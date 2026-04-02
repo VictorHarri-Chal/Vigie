@@ -9,6 +9,7 @@ Rails.application.routes.draw do
     member do
       patch :resolve
       patch :reopen
+      patch :update_note
     end
   end
 
