@@ -10,6 +10,22 @@
   <%# Leaflet map %>
   <div id="map" class="absolute inset-0 z-0"></div>
 
+  <%# Recherche — overlay haut centre %>
+  <div class="absolute top-4 left-1/2 -translate-x-1/2 z-10 w-72">
+    <div class="flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/25 rounded-xl px-3 py-1.5 shadow-lg hover:bg-gray-900/90 hover:border-gray-700 transition-all duration-300 group">
+      <svg class="w-3.5 h-3.5 text-white/50 group-hover:text-gray-500 flex-shrink-0 transition-colors duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+      </svg>
+      <input
+        type="text"
+        placeholder="Rechercher un pav"
+        class="bg-transparent text-sm text-white placeholder-gray-600 outline-none w-full"
+        data-action="keydown.enter->map#search"
+        data-map-target="searchInput"
+      >
+    </div>
+  </div>
+
   <%# Stats — overlay haut gauche %>
   <div class="absolute top-4 left-4 z-10 flex gap-2">
 

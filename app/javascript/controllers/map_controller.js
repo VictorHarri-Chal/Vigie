@@ -2,7 +2,7 @@ import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
   static values = { pavs: Array }
-  static targets = ["panel", "wasteTypeFilter", "fillLevelFilter", "wasteTypeLabel", "fillLevelLabel", "resetBtn", "statPavs", "statFill", "statIncidents"]
+  static targets = ["panel", "wasteTypeFilter", "fillLevelFilter", "wasteTypeLabel", "fillLevelLabel", "resetBtn", "statPavs", "statFill", "statIncidents", "searchInput"]
 
   connect() {
     this.map = L.map("map", { zoomControl: false, minZoom: 12 }).setView([48.8566, 2.3522], 11)
@@ -79,6 +79,16 @@ export default class extends Controller {
     const hasFilter = !!this.wasteTypeFilterTarget.value || !!this.fillLevelFilterTarget.value
     this.resetBtnTarget.classList.toggle("hidden", !hasFilter)
     this.resetBtnTarget.classList.toggle("flex", hasFilter)
+  }
+
+  search(event) {
+    const q = event.target.value.toLowerCase().trim()
+    if (!q) return
+    const marker = this.markers.find(m =>
+      m.pav.name.toLowerCase().includes(q) ||
+      m.pav.pav_id.toLowerCase().includes(q)
+    )
+    if (marker) this.openPanel(marker.pav.id, marker)
   }
 
   resetFilters() {
