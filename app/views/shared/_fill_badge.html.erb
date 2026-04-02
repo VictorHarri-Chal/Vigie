@@ -1,0 +1,4 @@
+<%# locals: (fill:) %>
+<span class="text-xs font-medium px-2 py-0.5 rounded-md <%= fill > 80 ? "bg-red-950 text-red-300" : fill > 50 ? "bg-yellow-950 text-yellow-300" : "bg-green-950 text-green-300" %>">
+  <%= fill.round %> %
+</span>

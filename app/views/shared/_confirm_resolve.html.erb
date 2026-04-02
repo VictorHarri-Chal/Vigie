@@ -1,0 +1,18 @@
+<%# locals: (incident:, wrapper_class: "relative inline-block", button_label: "Résoudre") %>
+<div data-controller="confirm" class="<%= wrapper_class %>">
+  <button data-action="click->confirm#show" class="text-xs px-2.5 py-1.5 rounded-lg bg-gray-800 border border-gray-700 text-gray-300 hover:border-yellow-400 hover:text-yellow-400 transition-colors cursor-pointer">
+    <%= button_label %>
+  </button>
+  <div data-confirm-target="dialog" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+    <div class="bg-gray-900 border border-gray-700 rounded-2xl p-6 shadow-2xl w-72 text-left">
+      <h3 class="text-sm font-semibold text-white mb-1.5">Confirmer la résolution</h3>
+      <p class="text-xs text-gray-500 mb-5">Cet incident sera marqué comme résolu.</p>
+      <div class="flex gap-2.5">
+        <%= form_with url: resolve_incident_path(incident), method: :patch, class: "flex-1" do %>
+          <button type="submit" class="w-full text-sm py-2 rounded-xl bg-yellow-400 text-gray-900 font-semibold hover:bg-yellow-300 transition-colors cursor-pointer">Confirmer</button>
+        <% end %>
+        <button data-action="click->confirm#hide" class="flex-1 text-sm py-2 rounded-xl bg-gray-800 border border-gray-700 text-gray-400 hover:text-white transition-colors cursor-pointer">Annuler</button>
+      </div>
+    </div>
+  </div>
+</div>
