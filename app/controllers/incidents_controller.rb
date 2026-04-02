@@ -2,15 +2,21 @@ class IncidentsController < ApplicationController
   before_action :set_incident, only: [ :resolve, :reopen ]
 
   def index
+    @pavs = Pav.order(:name)
+
     incidents = case params[:status]
     when "open"     then Log.open_incidents
     when "resolved" then Log.incidents.where("payload->>'resolved' = 'true'")
     else                 Log.incidents
     end
 
+    incidents = incidents.where(pav_id: params[:pav_id]) if params[:pav_id].present?
+    incidents = incidents.where("occurred_at >= ?", Date.parse(params[:from_date])) if params[:from_date].present?
+    incidents = incidents.where("occurred_at <= ?", Date.parse(params[:to_date]).end_of_day) if params[:to_date].present?
+
     respond_to do |format|
       format.html do
-        @pagy, @incidents = pagy(:offset, incidents.includes(:pav).recent, limit: 30)
+        @pagy, @incidents = pagy(:offset, incidents.includes(:pav).recent, limit: 9)
       end
       format.csv do
         rows = incidents.includes(:pav).recent

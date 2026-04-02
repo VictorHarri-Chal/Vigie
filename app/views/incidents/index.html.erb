@@ -1,32 +1,89 @@
 <% content_for :title, "Incidents" %>
 
+<% filter_params = { status: params[:status], pav_id: params[:pav_id], from_date: params[:from_date], to_date: params[:to_date] }.compact_blank %>
+<% extra_filters = filter_params.except(:status) %>
+
 <div class="py-8">
 
-  <div class="flex items-center justify-between mb-6">
+  <div class="flex items-center justify-between mb-4">
     <h1 class="text-xl font-semibold text-white">Incidents</h1>
 
     <div class="flex items-center gap-3">
-    <%= link_to incidents_path(status: params[:status], format: :csv),
-        title: "Exporter en CSV",
-        class: "flex items-center justify-center w-9 h-9 rounded-xl bg-gray-900 border border-gray-800 text-gray-400 hover:text-yellow-400 hover:border-yellow-400/50 transition-colors" do %>
-      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
-      </svg>
-    <% end %>
+      <%= link_to incidents_path(filter_params.merge(format: :csv)),
+          title: "Exporter en CSV",
+          class: "flex items-center justify-center w-9 h-9 rounded-xl bg-gray-900 border border-gray-800 text-gray-400 hover:text-yellow-400 hover:border-yellow-400/50 transition-colors" do %>
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+        </svg>
+      <% end %>
 
-    <div class="flex bg-gray-900 border border-gray-800 rounded-xl p-1 gap-1 text-sm">
-      <%= link_to "Tous",
-          incidents_path,
-          class: "px-4 py-1.5 rounded-lg transition-colors #{params[:status].blank? ? "bg-yellow-400 text-gray-900 font-semibold" : "text-gray-400 hover:text-white"}" %>
-      <%= link_to "Ouverts",
-          incidents_path(status: "open"),
-          class: "px-4 py-1.5 rounded-lg transition-colors #{params[:status] == "open" ? "bg-yellow-400 text-gray-900 font-semibold" : "text-gray-400 hover:text-white"}" %>
-      <%= link_to "Résolus",
-          incidents_path(status: "resolved"),
-          class: "px-4 py-1.5 rounded-lg transition-colors #{params[:status] == "resolved" ? "bg-yellow-400 text-gray-900 font-semibold" : "text-gray-400 hover:text-white"}" %>
-    </div>
+      <div class="flex bg-gray-900 border border-gray-800 rounded-xl p-1 gap-1 text-sm">
+        <%= link_to "Tous",
+            incidents_path(extra_filters),
+            class: "px-4 py-1.5 rounded-lg transition-colors #{params[:status].blank? ? "bg-yellow-400 text-gray-900 font-semibold" : "text-gray-400 hover:text-white"}" %>
+        <%= link_to "Ouverts",
+            incidents_path(extra_filters.merge(status: "open")),
+            class: "px-4 py-1.5 rounded-lg transition-colors #{params[:status] == "open" ? "bg-yellow-400 text-gray-900 font-semibold" : "text-gray-400 hover:text-white"}" %>
+        <%= link_to "Résolus",
+            incidents_path(extra_filters.merge(status: "resolved")),
+            class: "px-4 py-1.5 rounded-lg transition-colors #{params[:status] == "resolved" ? "bg-yellow-400 text-gray-900 font-semibold" : "text-gray-400 hover:text-white"}" %>
+      </div>
     </div>
   </div>
+
+  <%# Filtres PAV & date %>
+  <form method="get" action="<%= incidents_path %>" class="flex items-center gap-3 mb-6 bg-gray-900 border border-gray-800 rounded-xl px-4 py-3">
+    <input type="hidden" name="status" value="<%= params[:status] %>">
+
+    <%# Multi-select PAV %>
+    <div data-controller="multiselect" class="relative">
+      <button type="button"
+        data-action="click->multiselect#toggle"
+        class="flex items-center gap-2 bg-gray-800 border border-gray-700 rounded-lg text-sm text-gray-300 px-3 py-1.5 hover:border-gray-600 transition-colors cursor-pointer">
+        <span data-multiselect-target="label">Tous les PAVs</span>
+        <svg class="w-3 h-3 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/>
+        </svg>
+      </button>
+      <div
+        data-multiselect-target="menu"
+        class="hidden absolute top-full left-0 mt-2 bg-gray-900 border border-gray-700 rounded-xl shadow-2xl py-1 z-50 min-w-[13rem] max-h-52 overflow-y-auto">
+        <% @pavs.each do |pav| %>
+          <label class="flex items-center gap-2.5 px-4 py-2 text-xs text-gray-300 hover:bg-gray-800 cursor-pointer">
+            <input type="checkbox" name="pav_id[]" value="<%= pav.id %>"
+              <%= "checked" if Array(params[:pav_id]).include?(pav.id.to_s) %>
+              data-action="change->multiselect#change"
+              data-multiselect-target="checkbox"
+              data-label="<%= pav.name %>"
+              class="accent-yellow-400 cursor-pointer">
+            <%= pav.name %>
+          </label>
+        <% end %>
+      </div>
+    </div>
+
+    <div class="flex items-center gap-2 text-xs text-gray-500">
+      Du
+      <input type="date" name="from_date" value="<%= params[:from_date] %>"
+        class="bg-gray-800 border border-gray-700 rounded-lg text-sm text-gray-300 px-3 py-1.5 focus:outline-none focus:border-gray-600 [color-scheme:dark] cursor-pointer">
+      au
+      <input type="date" name="to_date" value="<%= params[:to_date] %>"
+        class="bg-gray-800 border border-gray-700 rounded-lg text-sm text-gray-300 px-3 py-1.5 focus:outline-none focus:border-gray-600 [color-scheme:dark] cursor-pointer">
+    </div>
+
+    <button type="submit" class="px-3.5 py-1.5 text-sm rounded-lg bg-gray-800 border border-gray-700 text-gray-300 hover:text-white hover:border-gray-500 transition-colors cursor-pointer">Filtrer</button>
+
+    <% if extra_filters.any? %>
+      <%= link_to incidents_path(status: params[:status]),
+          title: "Réinitialiser les filtres",
+          class: "flex items-center justify-center w-[2.125rem] h-[2.125rem] rounded-lg bg-gray-800 border border-gray-700 text-gray-300 hover:text-white hover:border-gray-500 transition-colors ml-auto" do %>
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3v5h5"/>
+        </svg>
+      <% end %>
+    <% end %>
+  </form>
 
   <% if @incidents.any? %>
     <div class="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden">
@@ -96,7 +153,7 @@
       <% next_page = @pagy.page < @pagy.pages ? @pagy.page + 1 : nil %>
       <div class="flex items-center justify-between mt-6 text-sm">
         <% if prev_page %>
-          <%= link_to "← Page précédente", incidents_path(status: params[:status], page: prev_page),
+          <%= link_to "← Page précédente", incidents_path(filter_params.merge(page: prev_page)),
               class: "text-yellow-400 hover:text-yellow-300 transition-colors" %>
         <% else %>
           <span class="text-gray-700">← Page précédente</span>
@@ -105,7 +162,7 @@
         <span class="text-gray-500">Page <%= @pagy.page %> sur <%= @pagy.pages %></span>
 
         <% if next_page %>
-          <%= link_to "Page suivante →", incidents_path(status: params[:status], page: next_page),
+          <%= link_to "Page suivante →", incidents_path(filter_params.merge(page: next_page)),
               class: "text-yellow-400 hover:text-yellow-300 transition-colors" %>
         <% else %>
           <span class="text-gray-700">Page suivante →</span>
