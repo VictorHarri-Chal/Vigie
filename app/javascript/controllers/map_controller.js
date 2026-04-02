@@ -2,7 +2,7 @@ import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
   static values = { pavs: Array }
-  static targets = ["panel", "wasteTypeFilter", "fillLevelFilter", "wasteTypeLabel", "fillLevelLabel", "resetBtn", "statPavs", "statFill", "statIncidents", "searchInput"]
+  static targets = ["panel", "wasteTypeFilter", "fillLevelFilter", "wasteTypeLabel", "fillLevelLabel", "resetBtn", "statPavs", "statFill", "statIncidents"]
 
   connect() {
     this.map = L.map("map", { zoomControl: false, minZoom: 12 }).setView([48.8566, 2.3522], 11)
@@ -20,7 +20,6 @@ export default class extends Controller {
     if (this.markers.length > 0) {
       const group = L.featureGroup(this.markers)
       this.map.fitBounds(group.getBounds(), { padding: [60, 60] })
-      this.defaultBounds = group.getBounds()
     }
   }
 

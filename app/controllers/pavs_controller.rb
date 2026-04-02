@@ -15,7 +15,7 @@ class PavsController < ApplicationController
     incidents_by_pav = Log.open_incidents.group(:pav_id).count
 
     @total_pavs = @pavs.size
-    @open_incidents = Log.open_incidents.count
+    @open_incidents = incidents_by_pav.values.sum
     fills = fill_by_pav.values.compact
     @avg_fill = fills.any? ? (fills.sum / fills.size).round : nil
 
@@ -36,9 +36,10 @@ class PavsController < ApplicationController
   def show
     @from_incidents = params[:from] == "incidents"
     @active_tab = params[:tab].to_i
-    @pagy_readings, @sensor_readings = pagy(:offset, @pav.logs.sensor_readings.recent, limit: 15, page_key: "page_r")
-    @pagy_deposits, @badge_deposits  = pagy(:offset, @pav.logs.badge_deposits.recent, limit: 15, page_key: "page_d")
-    @pagy_incidents, @incidents      = pagy(:offset, @pav.logs.incidents.recent, limit: 15, page_key: "page_i")
+    @pagy_timeline, @timeline_logs   = pagy(:offset, @pav.logs.recent, limit: 10, page_key: "page_t")
+    @pagy_readings, @sensor_readings = pagy(:offset, @pav.logs.sensor_readings.recent, limit: 17, page_key: "page_r")
+    @pagy_deposits, @badge_deposits  = pagy(:offset, @pav.logs.badge_deposits.recent, limit: 16, page_key: "page_d")
+    @pagy_incidents, @incidents      = pagy(:offset, @pav.logs.incidents.recent, limit: 7, page_key: "page_i")
 
     @latest_reading_at = @pav.logs.sensor_readings.maximum(:occurred_at)
     latest = @latest_reading_at

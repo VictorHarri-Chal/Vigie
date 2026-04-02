@@ -36,18 +36,21 @@
       class="flex flex-col flex-1 min-h-0"
     >
 
-      <div class="flex border-b border-gray-800 px-5 flex-shrink-0">
-        <button class="py-3 pr-4 text-sm border-b-2 transition-colors whitespace-nowrap hover:text-white cursor-pointer" data-tabs-target="tab" data-action="click->tabs#switch">
+      <div class="flex border-b border-gray-800 px-3 flex-shrink-0">
+        <button class="py-3 px-2.5 text-xs border-b-2 transition-colors whitespace-nowrap hover:text-white cursor-pointer" data-tabs-target="tab" data-action="click->tabs#switch">
           Informations
         </button>
-        <button class="py-3 px-4 text-sm border-b-2 transition-colors whitespace-nowrap hover:text-white cursor-pointer" data-tabs-target="tab" data-action="click->tabs#switch">
-          Relevés <span class="text-xs opacity-50">(<%= @pagy_readings.count %>)</span>
+        <button class="py-3 px-2.5 text-xs border-b-2 transition-colors whitespace-nowrap hover:text-white cursor-pointer" data-tabs-target="tab" data-action="click->tabs#switch">
+          Timeline
         </button>
-        <button class="py-3 px-4 text-sm border-b-2 transition-colors whitespace-nowrap hover:text-white cursor-pointer" data-tabs-target="tab" data-action="click->tabs#switch">
-          Dépôts <span class="text-xs opacity-50">(<%= @pagy_deposits.count %>)</span>
+        <button class="py-3 px-2.5 text-xs border-b-2 transition-colors whitespace-nowrap hover:text-white cursor-pointer" data-tabs-target="tab" data-action="click->tabs#switch">
+          Relevés <span class="opacity-50">(<%= @pagy_readings.count %>)</span>
         </button>
-        <button class="py-3 pl-4 text-sm border-b-2 transition-colors whitespace-nowrap hover:text-white cursor-pointer" data-tabs-target="tab" data-action="click->tabs#switch">
-          Incidents <span class="text-xs opacity-50">(<%= @pagy_incidents.count %>)</span>
+        <button class="py-3 px-2.5 text-xs border-b-2 transition-colors whitespace-nowrap hover:text-white cursor-pointer" data-tabs-target="tab" data-action="click->tabs#switch">
+          Dépôts <span class="opacity-50">(<%= @pagy_deposits.count %>)</span>
+        </button>
+        <button class="py-3 px-2.5 text-xs border-b-2 transition-colors whitespace-nowrap hover:text-white cursor-pointer" data-tabs-target="tab" data-action="click->tabs#switch">
+          Incidents <span class="opacity-50">(<%= @pagy_incidents.count %>)</span>
         </button>
       </div>
 
@@ -106,7 +109,97 @@
 
       </div>
 
-      <%# Onglet 2 : Relevés capteur %>
+      <%# Onglet 2 : Timeline %>
+      <div data-tabs-target="panel" class="hidden flex-1 overflow-y-auto px-5 py-4">
+        <% if @timeline_logs.any? %>
+          <div class="space-y-0 divide-y divide-gray-800">
+            <% @timeline_logs.each do |log| %>
+              <div class="flex items-start gap-3 py-3">
+
+                <%# Icône par type %>
+                <% if log.event_type == "sensor_reading" %>
+                  <div class="flex-shrink-0 mt-0.5 w-7 h-7 rounded-lg bg-blue-950 border border-blue-800 flex items-center justify-center">
+                    <svg class="w-3.5 h-3.5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                    </svg>
+                  </div>
+                <% elsif log.event_type == "badge_deposit" %>
+                  <div class="flex-shrink-0 mt-0.5 w-7 h-7 rounded-lg bg-green-950 border border-green-800 flex items-center justify-center">
+                    <svg class="w-3.5 h-3.5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 9h3.75M15 12h3.75M15 15h3.75M4.5 19.5h15a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25v10.5A2.25 2.25 0 004.5 19.5zm6-10.125a1.875 1.875 0 11-3.75 0 1.875 1.875 0 013.75 0zm1.294 6.336a6.721 6.721 0 01-3.17.789 6.721 6.721 0 01-3.168-.789 3.376 3.376 0 016.338 0z"/>
+                    </svg>
+                  </div>
+                <% else %>
+                  <div class="flex-shrink-0 mt-0.5 w-7 h-7 rounded-lg bg-orange-950 border border-orange-800 flex items-center justify-center">
+                    <svg class="w-3.5 h-3.5 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                    </svg>
+                  </div>
+                <% end %>
+
+                <%# Contenu %>
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center justify-between gap-2 mb-0.5">
+                    <span class="text-xs text-gray-500"><%= log.occurred_at.strftime("%d/%m/%Y %H:%M") %></span>
+                    <% if log.event_type == "sensor_reading" %>
+                      <% fill_v = log.payload["fill_percent"]&.to_f %>
+                      <% if fill_v %>
+                        <span class="text-xs font-medium px-1.5 py-0.5 rounded <%= fill_v > 80 ? "bg-red-950 text-red-300" : fill_v > 50 ? "bg-yellow-950 text-yellow-300" : "bg-green-950 text-green-300" %>">
+                          <%= fill_v.round %> %
+                        </span>
+                      <% end %>
+                    <% elsif log.event_type == "badge_deposit" %>
+                      <% granted = log.payload["access_granted"] %>
+                      <% unless granted.nil? %>
+                        <span class="text-xs px-1.5 py-0.5 rounded <%= granted ? "bg-green-950 text-green-300" : "bg-red-950 text-red-300" %>">
+                          <%= granted ? "Accepté" : "Refusé" %>
+                        </span>
+                      <% end %>
+                    <% elsif log.event_type == "incident" %>
+                      <% if log.resolved? %>
+                        <span class="text-xs px-1.5 py-0.5 rounded bg-green-950 text-green-300">Résolu</span>
+                      <% else %>
+                        <span class="text-xs px-1.5 py-0.5 rounded bg-yellow-950 text-yellow-300">Ouvert</span>
+                      <% end %>
+                    <% end %>
+                  </div>
+                  <p class="text-xs text-gray-300 truncate">
+                    <% if log.event_type == "sensor_reading" %>
+                      Relevé capteur
+                    <% elsif log.event_type == "badge_deposit" %>
+                      <%= log.payload["badge_id"] || "—" %> · <%= log.payload["badge_provider"] || "—" %>
+                    <% else %>
+                      <%= log.description %>
+                    <% end %>
+                  </p>
+                </div>
+
+              </div>
+            <% end %>
+          </div>
+          <% if @pagy_timeline.pages > 1 %>
+            <% prev_t = @pagy_timeline.page > 1 ? @pagy_timeline.page - 1 : nil %>
+            <% next_t = @pagy_timeline.page < @pagy_timeline.pages ? @pagy_timeline.page + 1 : nil %>
+            <div class="flex items-center justify-between mt-4 text-xs border-t border-gray-800 pt-4">
+              <% if prev_t %>
+                <%= link_to "← Préc.", pav_path(@pav, page_t: prev_t, tab: 1), class: "text-yellow-400 hover:text-yellow-300 transition-colors" %>
+              <% else %>
+                <span class="text-gray-700">← Préc.</span>
+              <% end %>
+              <span class="text-gray-500"><%= @pagy_timeline.page %> / <%= @pagy_timeline.pages %></span>
+              <% if next_t %>
+                <%= link_to "Suiv. →", pav_path(@pav, page_t: next_t, tab: 1), class: "text-yellow-400 hover:text-yellow-300 transition-colors" %>
+              <% else %>
+                <span class="text-gray-700">Suiv. →</span>
+              <% end %>
+            </div>
+          <% end %>
+        <% else %>
+          <p class="text-sm text-gray-500 text-center py-10">Aucun événement.</p>
+        <% end %>
+      </div>
+
+      <%# Onglet 3 : Relevés capteur %>
       <div data-tabs-target="panel" class="hidden flex-1 overflow-y-auto px-5 py-4">
         <% if @sensor_readings.any? %>
           <% readings_arr = @sensor_readings.to_a %>
@@ -156,13 +249,13 @@
             <% next_r = @pagy_readings.page < @pagy_readings.pages ? @pagy_readings.page + 1 : nil %>
             <div class="flex items-center justify-between mt-4 text-xs">
               <% if prev_r %>
-                <%= link_to "← Préc.", pav_path(@pav, page_r: prev_r, tab: 1), class: "text-yellow-400 hover:text-yellow-300 transition-colors" %>
+                <%= link_to "← Préc.", pav_path(@pav, page_r: prev_r, tab: 2), class: "text-yellow-400 hover:text-yellow-300 transition-colors" %>
               <% else %>
                 <span class="text-gray-700">← Préc.</span>
               <% end %>
               <span class="text-gray-500"><%= @pagy_readings.page %> / <%= @pagy_readings.pages %></span>
               <% if next_r %>
-                <%= link_to "Suiv. →", pav_path(@pav, page_r: next_r, tab: 1), class: "text-yellow-400 hover:text-yellow-300 transition-colors" %>
+                <%= link_to "Suiv. →", pav_path(@pav, page_r: next_r, tab: 2), class: "text-yellow-400 hover:text-yellow-300 transition-colors" %>
               <% else %>
                 <span class="text-gray-700">Suiv. →</span>
               <% end %>
@@ -216,13 +309,13 @@
             <% next_d = @pagy_deposits.page < @pagy_deposits.pages ? @pagy_deposits.page + 1 : nil %>
             <div class="flex items-center justify-between mt-4 text-xs">
               <% if prev_d %>
-                <%= link_to "← Préc.", pav_path(@pav, page_d: prev_d, tab: 2), class: "text-yellow-400 hover:text-yellow-300 transition-colors" %>
+                <%= link_to "← Préc.", pav_path(@pav, page_d: prev_d, tab: 3), class: "text-yellow-400 hover:text-yellow-300 transition-colors" %>
               <% else %>
                 <span class="text-gray-700">← Préc.</span>
               <% end %>
               <span class="text-gray-500"><%= @pagy_deposits.page %> / <%= @pagy_deposits.pages %></span>
               <% if next_d %>
-                <%= link_to "Suiv. →", pav_path(@pav, page_d: next_d, tab: 2), class: "text-yellow-400 hover:text-yellow-300 transition-colors" %>
+                <%= link_to "Suiv. →", pav_path(@pav, page_d: next_d, tab: 3), class: "text-yellow-400 hover:text-yellow-300 transition-colors" %>
               <% else %>
                 <span class="text-gray-700">Suiv. →</span>
               <% end %>
@@ -275,13 +368,13 @@
             <% next_i = @pagy_incidents.page < @pagy_incidents.pages ? @pagy_incidents.page + 1 : nil %>
             <div class="flex items-center justify-between mt-4 text-xs">
               <% if prev_i %>
-                <%= link_to "← Préc.", pav_path(@pav, page_i: prev_i, tab: 3), class: "text-yellow-400 hover:text-yellow-300 transition-colors" %>
+                <%= link_to "← Préc.", pav_path(@pav, page_i: prev_i, tab: 4), class: "text-yellow-400 hover:text-yellow-300 transition-colors" %>
               <% else %>
                 <span class="text-gray-700">← Préc.</span>
               <% end %>
               <span class="text-gray-500"><%= @pagy_incidents.page %> / <%= @pagy_incidents.pages %></span>
               <% if next_i %>
-                <%= link_to "Suiv. →", pav_path(@pav, page_i: next_i, tab: 3), class: "text-yellow-400 hover:text-yellow-300 transition-colors" %>
+                <%= link_to "Suiv. →", pav_path(@pav, page_i: next_i, tab: 4), class: "text-yellow-400 hover:text-yellow-300 transition-colors" %>
               <% else %>
                 <span class="text-gray-700">Suiv. →</span>
               <% end %>
