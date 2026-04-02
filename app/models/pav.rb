@@ -9,4 +9,9 @@ class Pav < ApplicationRecord
   def current_fill_percent
     logs.sensor_readings.order(occurred_at: :desc).first&.payload&.dig("fill_percent")
   end
+
+  def overfull?
+    fill = current_fill_percent
+    fill && fill.to_f > 90
+  end
 end
