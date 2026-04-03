@@ -6,6 +6,7 @@ Rails.application.routes.draw do
   resources :pavs, only: [ :index, :show ]
 
   get "stats" => "stats#index", as: :stats
+  get "tours" => "tours#index", as: :tour_planner
 
   resources :incidents, only: [ :index ] do
     member do
