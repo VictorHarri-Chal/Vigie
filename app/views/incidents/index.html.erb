@@ -32,8 +32,8 @@
   </div>
 
   <%# Filtres PAV & date %>
-  <form method="get" action="<%= incidents_path %>" class="flex items-center gap-3 mb-6 bg-gray-900 border border-gray-800 rounded-xl px-4 py-3">
-    <input type="hidden" name="status" value="<%= params[:status] %>">
+  <%= simple_form_for :filter, url: incidents_path, method: :get, html: { class: "flex items-center gap-3 mb-6 bg-gray-900 border border-gray-800 rounded-xl px-4 py-3" } do |f| %>
+    <%= hidden_field_tag :status, params[:status] %>
 
     <%# Multi-select PAV %>
     <div data-controller="multiselect" class="relative">
@@ -71,7 +71,7 @@
         class="bg-gray-800 border border-gray-700 rounded-lg text-sm text-gray-300 px-3 py-1.5 focus:outline-none focus:border-gray-600 [color-scheme:dark] cursor-pointer">
     </div>
 
-    <button type="submit" class="px-3.5 py-1.5 text-sm rounded-lg bg-gray-800 border border-gray-700 text-gray-300 hover:text-white hover:border-gray-500 transition-colors cursor-pointer">Filtrer</button>
+    <%= f.submit "Filtrer", class: "px-3.5 py-1.5 text-sm rounded-lg bg-gray-800 border border-gray-700 text-gray-300 hover:text-white hover:border-gray-500 transition-colors cursor-pointer" %>
 
     <% if extra_filters.any? %>
       <%= link_to incidents_path(status: params[:status]),
@@ -83,7 +83,7 @@
         </svg>
       <% end %>
     <% end %>
-  </form>
+  <% end %>
 
   <% if @incidents.any? %>
     <div class="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden">
@@ -99,7 +99,7 @@
         </thead>
         <tbody class="divide-y divide-gray-800">
           <% @incidents.each do |incident| %>
-            <tr class="transition-colors <%= incident.pav.overfull? ? "bg-red-950/20 hover:bg-red-950/30 border-l-2 border-l-red-500" : "hover:bg-gray-800/50" %>">
+            <tr class="transition-colors <%= @overfull_pav_ids.include?(incident.pav_id) ? "bg-red-950/20 hover:bg-red-950/30 border-l-2 border-l-red-500" : "hover:bg-gray-800/50" %>">
               <td class="px-5 py-3">
                 <%= link_to incident.pav.name, pav_path(incident.pav, from: "incidents"),
                     class: "text-yellow-400 hover:text-yellow-300 transition-colors font-medium" %>
@@ -117,9 +117,10 @@
               <td class="px-5 py-3 text-right">
                 <% if incident.resolved? %>
                   <%= button_to "Réouvrir", reopen_incident_path(incident), method: :patch,
+                      params: { from: "incidents" },
                       class: "text-xs px-2.5 py-1 rounded-md bg-gray-800 border border-gray-700 text-gray-400 hover:border-gray-500 hover:text-gray-200 transition-colors cursor-pointer" %>
                 <% else %>
-                  <%= render "shared/confirm_resolve", incident: incident %>
+                  <%= render "shared/confirm_resolve", incident: incident, from: "incidents" %>
                 <% end %>
               </td>
             </tr>

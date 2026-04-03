@@ -15,6 +15,7 @@ export default class extends Controller {
 
     this.markers = []
     this.activeMarker = null
+    this.previousZoom = null
     this.pavsValue.forEach(pav => this.addMarker(pav))
 
     if (this.markers.length > 0) {
@@ -137,10 +138,11 @@ export default class extends Controller {
     marker.setIcon(this.makeIcon(marker.color, true))
     this.activeMarker = marker
 
+    this.previousZoom = this.map.getZoom()
     this.map.flyTo([marker.pav.lat, marker.pav.lng], 15, { animate: true, duration: 0.4 })
 
     const frame = document.querySelector("turbo-frame#pav-panel")
-    frame.src = `/pavs/${pavId}`
+    if (frame) frame.src = `/pavs/${pavId}`
     this.panelTarget.classList.remove("translate-x-full")
   }
 
@@ -154,7 +156,9 @@ export default class extends Controller {
     const frame = document.querySelector("turbo-frame#pav-panel")
     if (frame) frame.src = ""
 
-    this.map.zoomOut(1, { animate: true })
+    const target = this.previousZoom ?? this.map.getZoom() - 1
+    this.previousZoom = null
+    this.map.setZoom(target, { animate: true })
   }
 
   fillColor(percent) {

@@ -8,8 +8,8 @@
   </div>
 
   <div class="bg-gray-900 border border-gray-800 rounded-2xl p-8">
-    <%= form_for(resource, as: resource_name, url: password_path(resource_name), html: { method: :put }) do |f| %>
-      <%= f.hidden_field :reset_password_token %>
+    <%= simple_form_for(resource, as: resource_name, url: password_path(resource_name), html: { method: :put }) do |f| %>
+      <%= f.input_field :reset_password_token, as: :hidden %>
 
       <% if resource.errors.any? %>
         <div class="bg-red-950 border border-red-800 rounded-lg px-4 py-3 mb-5 text-sm text-red-300">
@@ -22,7 +22,7 @@
       <div class="space-y-5">
         <div>
           <%= f.label :password, "Nouveau mot de passe", class: "block text-sm text-gray-400 mb-1.5" %>
-          <%= f.password_field :password,
+          <%= f.input_field :password, as: :password,
               autofocus: true,
               autocomplete: "new-password",
               class: "w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-white placeholder-gray-600 focus:outline-none focus:border-yellow-400 transition-colors text-sm" %>
@@ -31,7 +31,7 @@
 
         <div>
           <%= f.label :password_confirmation, "Confirmation", class: "block text-sm text-gray-400 mb-1.5" %>
-          <%= f.password_field :password_confirmation,
+          <%= f.input_field :password_confirmation, as: :password,
               autocomplete: "new-password",
               class: "w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-white placeholder-gray-600 focus:outline-none focus:border-yellow-400 transition-colors text-sm" %>
         </div>

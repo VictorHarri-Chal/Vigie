@@ -18,8 +18,8 @@
 
     <%# État édition %>
     <div data-note-target="form" class="hidden">
-      <%= form_with url: update_note_incident_path(incident), method: :patch do |f| %>
-        <%= f.text_area :note,
+      <%= simple_form_for :note, url: update_note_incident_path(incident), method: :patch do |f| %>
+        <%= f.input_field :note, as: :text,
             value: displayed,
             rows: 3,
             placeholder: "Description de l'incident...",

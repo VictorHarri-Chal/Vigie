@@ -17,6 +17,7 @@ class IncidentsController < ApplicationController
     respond_to do |format|
       format.html do
         @pagy, @incidents = pagy(:offset, incidents.includes(:pav).recent, limit: 9)
+        @overfull_pav_ids = overfull_pav_ids(@incidents.map(&:pav_id).uniq)
       end
       format.csv do
         rows = incidents.includes(:pav).recent
@@ -55,18 +56,27 @@ class IncidentsController < ApplicationController
   def resolve
     @incident.payload = (@incident.payload || {}).merge("resolved" => true)
     @incident.save!
-    redirect_to request.referer&.include?("/incidents") ? incidents_path : pav_path(@incident.pav, tab: 4)
+    redirect_to params[:from] == "incidents" ? incidents_path : pav_path(@incident.pav, tab: 4)
   end
 
   def reopen
     @incident.payload = (@incident.payload || {}).merge("resolved" => false)
     @incident.save!
-    redirect_to request.referer&.include?("/incidents") ? incidents_path : pav_path(@incident.pav, tab: 4)
+    redirect_to params[:from] == "incidents" ? incidents_path : pav_path(@incident.pav, tab: 4)
   end
 
   private
 
   def set_incident
     @incident = Log.incidents.find(params[:id])
+  end
+
+  def overfull_pav_ids(pav_ids)
+    return [] if pav_ids.empty?
+    Log.sensor_readings
+       .where(pav_id: pav_ids)
+       .select("DISTINCT ON (pav_id) pav_id, (payload->>'fill_percent')::float AS fill_percent")
+       .order("pav_id, occurred_at DESC")
+       .filter_map { |l| l.pav_id if l.fill_percent.to_f > 90 }
   end
 end

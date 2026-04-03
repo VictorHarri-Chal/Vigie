@@ -8,13 +8,13 @@
   </div>
 
   <div class="bg-gray-900 border border-gray-800 rounded-2xl p-8">
-    <%= form_for(resource, as: resource_name, url: password_path(resource_name), html: { method: :post }) do |f| %>
+    <%= simple_form_for(resource, as: resource_name, url: password_path(resource_name), html: { method: :post }) do |f| %>
       <div class="space-y-5">
         <p class="text-sm text-gray-400">Entrez votre adresse e-mail et nous vous enverrons un lien pour réinitialiser votre mot de passe.</p>
 
         <div>
           <%= f.label :email, "Adresse e-mail", class: "block text-sm text-gray-400 mb-1.5" %>
-          <%= f.email_field :email,
+          <%= f.input_field :email, as: :email,
               autofocus: true,
               autocomplete: "email",
               class: "w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-white placeholder-gray-600 focus:outline-none focus:border-yellow-400 transition-colors text-sm" %>

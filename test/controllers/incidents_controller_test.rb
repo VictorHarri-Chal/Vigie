@@ -47,10 +47,16 @@ class IncidentsControllerTest < ActionDispatch::IntegrationTest
     assert @open_incident.reload.resolved?
   end
 
-  test "resolve redirects to incidents path" do
+  test "resolve redirects to incidents path when from=incidents" do
+    sign_in @user
+    patch resolve_incident_path(@open_incident), params: { from: "incidents" }
+    assert_redirected_to incidents_path
+  end
+
+  test "resolve redirects to pav path when no from param" do
     sign_in @user
     patch resolve_incident_path(@open_incident)
-    assert_redirected_to incidents_path
+    assert_redirected_to pav_path(@open_incident.pav, tab: 4)
   end
 
   # Reopen
@@ -61,9 +67,15 @@ class IncidentsControllerTest < ActionDispatch::IntegrationTest
     assert_not @resolved_incident.reload.resolved?
   end
 
-  test "reopen redirects to incidents path" do
+  test "reopen redirects to incidents path when from=incidents" do
+    sign_in @user
+    patch reopen_incident_path(@resolved_incident), params: { from: "incidents" }
+    assert_redirected_to incidents_path
+  end
+
+  test "reopen redirects to pav path when no from param" do
     sign_in @user
     patch reopen_incident_path(@resolved_incident)
-    assert_redirected_to incidents_path
+    assert_redirected_to pav_path(@resolved_incident.pav, tab: 4)
   end
 end

@@ -23,12 +23,12 @@ class StatsController < ApplicationController
       .sort.to_h
 
     top_active = Log.where.not(event_type: "incident")
-      .group(:pav_id).count.sort_by { |_, v| -v }.first(5)
-    active_pavs = Pav.where(id: top_active.map(&:first)).index_by(&:id)
+      .group(:pav_id).order("count_all DESC").limit(5).count
+    active_pavs = Pav.where(id: top_active.keys).index_by(&:id)
 
     top_problematic = Log.open_incidents
-      .group(:pav_id).count.sort_by { |_, v| -v }.first(5)
-    problem_pavs = Pav.where(id: top_problematic.map(&:first)).index_by(&:id)
+      .group(:pav_id).order("count_all DESC").limit(5).count
+    problem_pavs = Pav.where(id: top_problematic.keys).index_by(&:id)
 
     @fill_chart        = fill_chart_config(fill_by_day)
     @waste_chart       = waste_chart_config(by_waste)
