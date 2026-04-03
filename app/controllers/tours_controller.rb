@@ -1,6 +1,6 @@
 class ToursController < ApplicationController
   def index
-    pavs = Pav.all.to_a
+    pavs = Pav.all
 
     latest_readings = Log.sensor_readings
       .select("DISTINCT ON (pav_id) pav_id, (payload->>'fill_percent')::float AS fill_percent")

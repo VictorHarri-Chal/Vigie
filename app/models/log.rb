@@ -31,4 +31,13 @@ class Log < ApplicationRecord
     flags |= [ "badge_revoked" ] if payload["badge_revoked"]
     flags.filter_map { |f| ANOMALY_LABELS[f] }
   end
+
+  def self.overfull_pav_ids(pav_ids)
+    return [] if pav_ids.empty?
+    sensor_readings
+      .where(pav_id: pav_ids)
+      .select("DISTINCT ON (pav_id) pav_id, (payload->>'fill_percent')::float AS fill_percent")
+      .order("pav_id, occurred_at DESC")
+      .filter_map { |l| l.pav_id if l.fill_percent.to_f > 90 }
+  end
 end
