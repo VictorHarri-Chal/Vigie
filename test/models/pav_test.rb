@@ -49,4 +49,14 @@ class PavTest < ActiveSupport::TestCase
   test "current_fill_percent returns nil when no sensor readings" do
     assert_nil pavs(:two).current_fill_percent
   end
+
+  # overfull?
+
+  test "overfull? returns false when fill is below 90" do
+    assert_not pavs(:one).overfull?
+  end
+
+  test "overfull? returns false when no sensor readings" do
+    assert_not pavs(:two).overfull?
+  end
 end

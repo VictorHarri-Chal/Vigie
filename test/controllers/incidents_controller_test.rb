@@ -78,4 +78,17 @@ class IncidentsControllerTest < ActionDispatch::IntegrationTest
     patch reopen_incident_path(@resolved_incident)
     assert_redirected_to pav_path(@resolved_incident.pav, tab: 4)
   end
+
+  # Update note
+
+  test "update_note saves the note on the incident payload" do
+    sign_in @user
+    patch update_note_incident_path(@open_incident), params: { note: "Débordement constaté" }
+    assert_equal "Débordement constaté", @open_incident.reload.payload["note"]
+  end
+
+  test "update_note redirects to login when not authenticated" do
+    patch update_note_incident_path(@open_incident), params: { note: "Test" }
+    assert_redirected_to new_user_session_path
+  end
 end
