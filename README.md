@@ -1,33 +1,111 @@
-# 📝 Énoncé
+# Vigie — Gestion de parc PAV
 
-Une collectivité gère un parc de points d'apport volontaire (PAV) répartis en ville. Construis une application qui permet aux agents de la collectivité de suivre l'état du parc et d'exploiter les données remontées par les équipements.
+Dashboard de suivi et de planification pour agents municipaux : Points d'Apport Volontaire, incidents, statistiques et tournées optimisées.
 
-![publidata-test-technique-illustration](https://medias.publidata.io/production/images/images/000/112/396/original/568639236-b1a6499b-7c48-463e-8f50-757f65e74d24.jpg?1774858975)
+**https://vigie-38yb.onrender.com/**
 
-## 🎯 Objectif
+![Carte interactive — panneau PAV](docs/screenshot1.jpeg)
+![Planification de tournée — routing OSRM](docs/screenshot2.jpeg)
 
-Livrer un prototype d'application web qui répond à l'énoncé ci-dessus.
+---
 
-## ☑️ Attendus
+## Fonctionnalités
 
-- Back-end en Ruby on Rails.
-- Base de données en PostgreSQL.
-- Une interface web, même minimale.
+| Fonctionnalité           | Description                                                                                                                                           |
+| ------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Carte interactive        | Marqueurs colorés par taux de remplissage, filtres par type de déchet et niveau, recherche par nom ou identifiant, panneau latéral PAV en Turbo Frame |
+| Panneau PAV              | 4 onglets (timeline unifiée, capteurs, dépôts, incidents), graphique d'évolution Chart.js sur 30 jours, indicateur de fraîcheur des données           |
+| Gestion des incidents    | Liste filtrée par statut, PAV et date, résolution/réouverture avec confirmation, édition de note en Turbo Stream, export CSV                          |
+| Statistiques             | 5 graphiques Chart.js : évolution du remplissage 30 jours, répartition par type de déchet, incidents mensuels, top PAVs actifs et problématiques      |
+| Planification de tournée | Carte Leaflet, slider de seuil (50–100 %), routing OSRM sur routes réelles, polyline animée, liste ordonnée des PAVs avec distance totale             |
 
-## 🚀 Livrable
+---
 
-- Le code pushé sur ce repo GitHub.
-- 2 ou 3 user stories documentées dans le `README.md` — c'est à toi de les définir.
-- Un lien vers l'app web déployée (auto-hébergée, fly.io, render.com, etc.).
+## Stack
 
-## 📊 Données
+| Catégorie                 | Outil                                     |
+| ------------------------- | ----------------------------------------- |
+| Framework                 | Ruby on Rails 8.0                         |
+| Base de données           | PostgreSQL (jsonb)                        |
+| Frontend                  | Tailwind CSS, Hotwire (Turbo + Stimulus)  |
+| Carte                     | Leaflet.js + OpenStreetMap (sans clé API) |
+| Graphiques                | Chart.js                                  |
+| Auth / Forms / Pagination | Devise, Simple Form, Pagy                 |
+| Routing tournées          | OSRM (router.project-osrm.org)            |
+| Déploiement               | Render                                    |
 
-Le jeu de données fourni est un export brut de deux ans de données (factices) pour un parc de PAV parisiens : relevés de remplissage par des capteurs, dépôts déclenchés par les badges des usagers, incidents signalés.
+---
 
-Les badges ne sont pas nominatifs — les dépôts sont anonymes.
+## Modèle de données
 
-Les données sont intentionnellement imparfaites. La façon dont tu gères cela fait partie de l'exercice.
+```
+pavs   — identifiant métier, nom, adresse, coordonnées GPS, type de déchet, capacité
+logs   — tous les événements en une seule table : sensor_reading, badge_deposit, incident
+         via event_type + payload jsonb — absorbe 3 structures incompatibles sans nullable column sprawl
+users  — authentification Devise (email + mot de passe)
+```
 
-## 🤖 Usage de l'IA
+Le choix `jsonb` pour le payload est délibéré : les trois types d'événements ont des structures incompatibles. Une table par type aurait généré du nullable column sprawl ; trois tables séparées auraient compliqué les requêtes transversales. `jsonb` est honnête sur cette variabilité et reste nativement requêtable par PostgreSQL.
 
-Tu es libre d'utiliser des outils d'IA pour t'aider. Par souci de transparence, merci de documenter dans le README les outils utilisés, les tâches pour lesquelles tu y as eu recours et comment tu as validé le code généré.
+---
+
+## Setup local
+
+**Prérequis** : Ruby >= 3.2, PostgreSQL, le fichier `pav_logs.json` à la racine du projet (fourni avec l'énoncé du test technique).
+
+```bash
+# 1. Installer les dépendances
+bundle install
+
+# 2. Créer et migrer la base
+rails db:create db:migrate
+
+# 3. Importer les données
+rake import:logs
+
+# 4. Lancer le serveur
+rails server
+```
+
+La rake task `import:logs` est idempotente — elle peut être relancée sans créer de doublons.
+
+**Déploiement Render** : `bin/render-build.sh` enchaîne automatiquement bundle, assets:precompile, db:migrate et rake import:logs. Variables d'environnement requises : `DATABASE_URL`, `RAILS_MASTER_KEY`.
+
+---
+
+## Tests
+
+La suite Minitest couvre les validations et scopes des modèles (Pav, Log, User), les 4 controllers (pavs, incidents, stats, tours), les flux système principaux (authentification, carte, incidents) et la tâche d'import.
+
+```bash
+rails test
+```
+
+---
+
+## User Stories
+
+Trois user stories ont été définies pour cadrer le périmètre fonctionnel :
+
+- **US1 — Surveillance de la carte** : visualiser l'état du parc en temps réel et prioriser les interventions
+- **US2 — Gestion des incidents** : tracer le cycle de vie d'une anomalie de la détection à la résolution
+- **US3 — Planification de tournée** : calculer l'itinéraire optimal pour les PAVs dépassant un seuil de remplissage
+
+[Détail complet des user stories](./USER_STORIES.md)
+
+---
+
+## Usage de l'IA
+
+**Outil utilisé** : Claude Code (claude-sonnet-4-6) via CLI, avec un `CLAUDE.md` rédigé en amont pour contraindre la stack, le style de code et les conventions du projet.
+
+**Ce que l'IA a assisté** : planification et priorisation des fonctionnalités, boilerplate Tailwind (composants UI répétitifs), configuration Devise, squelettes de migrations, écriture des tests Minitest, configuration Render, ce README. Des skills d'audit et de revue de code ont été utilisés régulièrement pour identifier les incohérences et les régressions.
+
+**Ce que j'ai décidé et arbitré** :
+
+- Modèle de données : Pav + Log avec payload jsonb plutôt que tables séparées par type d'événement
+- Stratégie d'import : rake task idempotente avec upsert, gestion des dates imparfaites (fallback datetime → date + minuit)
+- Choix de Leaflet + OSM, OSRM, Hotwire — et ce qu'on n'a pas pris (Mapbox, React, Active Storage)
+- Tous les scopes ActiveRecord et les requêtes jsonb PostgreSQL
+- Architecture Stimulus : un controller par comportement JS justifié, rien de plus
+- Lecture et validation de chaque fichier généré avant commit — tout le code est explicable ligne par ligne
