@@ -83,6 +83,18 @@ rails test
 
 ---
 
+## User Stories
+
+Trois user stories ont été définies pour cadrer le périmètre fonctionnel :
+
+- **US1 — Surveillance de la carte** : visualiser l'état du parc en temps réel et prioriser les interventions
+- **US2 — Gestion des incidents** : tracer le cycle de vie d'une anomalie de la détection à la résolution
+- **US3 — Planification de tournée** : calculer l'itinéraire optimal pour les PAVs dépassant un seuil de remplissage
+
+[Détail complet des user stories](./USER_STORIES.md)
+
+---
+
 ## Usage de l'IA
 
 **Outil utilisé** : Claude Code (claude-sonnet-4-6) via CLI, avec un `CLAUDE.md` rédigé en amont pour contraindre la stack, le style de code et les conventions du projet.
